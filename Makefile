@@ -1,0 +1,21 @@
+CC = clang
+CFLAGS = -Wall -Wextra -Wpedantic -Iinclude
+LDFLAGS = -lsdl2
+
+C_FILES = $(wildcard src/*.c)
+HEADERS_FILES = $(wildcard src/*.h)
+OBJ_FILES = $(C_FILES:.c=.o)
+
+EXEC_NAME = learning-sdl-c
+
+all: $(EXEC_NAME)
+
+$(EXEC_NAME): $(OBJ_FILES)
+	$(CC) $(LDFLAGS) $(OBJ_FILES) -o $@
+
+run: $(EXEC_NAME)
+	./$(EXEC_NAME)
+
+clean:
+	rm -f $(OBJ_FILES)
+	rm -f $(EXEC_NAME)
