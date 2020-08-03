@@ -29,6 +29,19 @@ int main()
         goto RendererInitFailed;
     }
 
+    SDL_Color orange = {255, 127, 40, 255};
+    if(0 != SDL_SetRenderDrawColor(renderer, orange.r, orange.g, orange.b, orange.a))
+    {
+        fprintf(stderr, "Erreur SDL_SetRenderDrawColor : %s", SDL_GetError());
+        goto Fail;
+    }
+
+    if(0 != SDL_RenderClear(renderer))
+    {
+        fprintf(stderr, "Erreur SDL_SetRenderClear : %s", SDL_GetError());
+        goto Fail;
+    }
+
     SDL_Event event;
     bool quit = false;
     while (!quit) {
@@ -36,10 +49,12 @@ int main()
             if (event.type == SDL_QUIT) {
                 quit = true;
             }
+            SDL_RenderPresent(renderer);
         }
     }
 
     status = EXIT_SUCCESS;
+Fail:
     SDL_DestroyRenderer(renderer);
 RendererInitFailed:
     SDL_DestroyWindow(window);
