@@ -11,13 +11,22 @@ int main()
         return EXIT_FAILURE;
     }
 
+    int status = EXIT_FAILURE;
+
     SDL_Window *window = SDL_CreateWindow("SDL2", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                               640, 480, SDL_WINDOW_SHOWN);
 
     if(NULL == window)
     {
         fprintf(stderr, "Erreur SDL_CreateWindow : %s\n", SDL_GetError());
-        return EXIT_FAILURE;
+        goto WindowInitFailed;
+    }
+
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    if(NULL == renderer)
+    {
+        fprintf(stderr, "Erreur SDL_CreateRenderer : %s", SDL_GetError());
+        goto RendererInitFailed;
     }
 
     SDL_Event event;
@@ -30,8 +39,12 @@ int main()
         }
     }
 
+    status = EXIT_SUCCESS;
+    SDL_DestroyRenderer(renderer);
+RendererInitFailed:
     SDL_DestroyWindow(window);
+WindowInitFailed:
     SDL_Quit();
 
-    return EXIT_SUCCESS;
+    return status;
 }
