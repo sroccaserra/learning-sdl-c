@@ -16,6 +16,13 @@ $(EXEC_NAME): $(OBJ_FILES)
 run: $(EXEC_NAME)
 	./$(EXEC_NAME)
 
+debug: CFLAGS += -DDEBUG -g
+debug: $(EXEC_NAME)
+	@echo "To debug on macOs, use:"
+	@echo "$$ lldb $(EXEC_NAME)"
+	@echo "(lldb) b main"
+	@echo "(lldb) run"
+
 clean:
 	rm -f $(OBJ_FILES)
 	rm -f $(EXEC_NAME)
