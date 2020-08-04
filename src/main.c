@@ -4,7 +4,8 @@
 
 #include <SDL2/SDL.h>
 
-int draw(SDL_Renderer *renderer);
+void update(SDL_Rect *rect);
+int draw(SDL_Renderer *renderer, SDL_Rect *rect);
 
 int main()
 {
@@ -31,6 +32,7 @@ int main()
         goto RendererInitFailed;
     }
 
+    SDL_Rect rect = {10, 10, 10, 10};
 
     SDL_Event event;
     bool quit = false;
@@ -40,7 +42,8 @@ int main()
                 quit = true;
             }
         }
-        if(0 != draw(renderer)) {
+        update(&rect);
+        if(0 != draw(renderer, &rect)) {
             goto Fail;
         }
     }
@@ -56,19 +59,21 @@ WindowInitFailed:
     return status;
 }
 
-int draw(SDL_Renderer *renderer) {
+void update(SDL_Rect *rect) {
+    rect->x += 1;
+}
+
+int draw(SDL_Renderer *renderer, SDL_Rect *rect) {
     int result = 0;
 
     SDL_Color background_color = {63, 63, 63, 255};
     SDL_Color green = {40, 255, 255, 255};
 
-    SDL_Rect rect = {10, 10, 10, 10};
-
     result += SDL_SetRenderDrawColor(renderer, background_color.r, background_color.g, background_color.b, background_color.a);
     result += SDL_RenderClear(renderer);
 
     result += SDL_SetRenderDrawColor(renderer, green.r, green.g, green.b, green.a);
-    result += SDL_RenderFillRect(renderer, &rect);
+    result += SDL_RenderFillRect(renderer, rect);
 
     SDL_RenderPresent(renderer);
 
