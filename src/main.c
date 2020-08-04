@@ -59,9 +59,16 @@ WindowInitFailed:
 int draw(SDL_Renderer *renderer) {
     int result = 0;
 
-    SDL_Color orange = {255, 127, 40, 255};
-    result += SDL_SetRenderDrawColor(renderer, orange.r, orange.g, orange.b, orange.a);
+    SDL_Color background_color = {63, 63, 63, 255};
+    SDL_Color green = {40, 255, 255, 255};
+
+    SDL_Rect rect = {10, 10, 10, 10};
+
+    result += SDL_SetRenderDrawColor(renderer, background_color.r, background_color.g, background_color.b, background_color.a);
     result += SDL_RenderClear(renderer);
+
+    result += SDL_SetRenderDrawColor(renderer, green.r, green.g, green.b, green.a);
+    result += SDL_RenderFillRect(renderer, &rect);
 
     SDL_RenderPresent(renderer);
 
