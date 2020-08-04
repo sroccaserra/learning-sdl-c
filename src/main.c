@@ -16,7 +16,7 @@ typedef struct {
 } World;
 
 void update(World *world);
-int draw(SDL_Renderer *renderer, World *world);
+int draw(SDL_Renderer *renderer, World const *world);
 
 int main()
 {
@@ -43,7 +43,7 @@ int main()
         goto RendererInitFailed;
     }
 
-    World world = {0, {10, 10}};
+    World world = {0, {0, 0}};
 
     SDL_Event event;
     bool quit = false;
@@ -71,21 +71,27 @@ WindowInitFailed:
 }
 
 void update(World *world) {
+    float center_x = 640/2;
+    float center_y = 480/2;
+    float r = 200;
     world->nb_ticks += 1;
-    world->player.x += 1;
+
+    world->player.x = center_x + r*cos(world->nb_ticks/100.f);
+    world->player.y = center_y + r*sin(world->nb_ticks/100.f);
 }
 
-int draw(SDL_Renderer *renderer, World *world) {
+int draw(SDL_Renderer *renderer, World const *world) {
     int result = 0;
 
     SDL_Color background_color = {63, 63, 63, 255};
     result += SDL_SetRenderDrawColor(renderer, background_color.r, background_color.g, background_color.b, background_color.a);
     result += SDL_RenderClear(renderer);
 
-    SDL_Color green = {40, 255, 255, 255};
-    result += SDL_SetRenderDrawColor(renderer, green.r, green.g, green.b, green.a);
-    Player *player = &world->player;
-    SDL_Rect rect = {round(player->x), round(player-> y), 10, 10};
+    SDL_Color player_color = {40, 255, 255, 255};
+    result += SDL_SetRenderDrawColor(renderer, player_color.r, player_color.g, player_color.b, player_color.a);
+    Player const *player = &world->player;
+    float size = 10;
+    SDL_Rect rect = {round(player->x - size/2), round(player->y - size/2), size, size};
     result += SDL_RenderFillRect(renderer, &rect);
 
     SDL_RenderPresent(renderer);
