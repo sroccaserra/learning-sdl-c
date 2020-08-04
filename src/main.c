@@ -10,8 +10,13 @@ typedef struct {
     float y;
 } Player;
 
-void update(Player *player);
-int draw(SDL_Renderer *renderer, Player *player);
+typedef struct {
+    int nb_ticks;
+    Player player;
+} World;
+
+void update(World *world);
+int draw(SDL_Renderer *renderer, World *world);
 
 int main()
 {
@@ -38,7 +43,7 @@ int main()
         goto RendererInitFailed;
     }
 
-    Player player = {10, 10};
+    World world = {0, {10, 10}};
 
     SDL_Event event;
     bool quit = false;
@@ -48,8 +53,8 @@ int main()
                 quit = true;
             }
         }
-        update(&player);
-        if(0 != draw(renderer, &player)) {
+        update(&world);
+        if(0 != draw(renderer, &world)) {
             goto Fail;
         }
     }
@@ -65,11 +70,12 @@ WindowInitFailed:
     return status;
 }
 
-void update(Player *player) {
-    player->x += 1;
+void update(World *world) {
+    world->nb_ticks += 1;
+    world->player.x += 1;
 }
 
-int draw(SDL_Renderer *renderer, Player *player) {
+int draw(SDL_Renderer *renderer, World *world) {
     int result = 0;
 
     SDL_Color background_color = {63, 63, 63, 255};
@@ -78,6 +84,7 @@ int draw(SDL_Renderer *renderer, Player *player) {
 
     SDL_Color green = {40, 255, 255, 255};
     result += SDL_SetRenderDrawColor(renderer, green.r, green.g, green.b, green.a);
+    Player *player = &world->player;
     SDL_Rect rect = {round(player->x), round(player-> y), 10, 10};
     result += SDL_RenderFillRect(renderer, &rect);
 
