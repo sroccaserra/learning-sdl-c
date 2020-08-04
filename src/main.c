@@ -36,7 +36,8 @@ int main()
         goto WindowInitFailed;
     }
 
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1,
+            SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if(NULL == renderer)
     {
         fprintf(stderr, "Erreur SDL_CreateRenderer : %s", SDL_GetError());
@@ -76,8 +77,8 @@ void update(World *world) {
     float r = 200;
     world->nb_ticks += 1;
 
-    world->player.x = center_x + r*cos(world->nb_ticks/100.f);
-    world->player.y = center_y + r*sin(world->nb_ticks/100.f);
+    world->player.x = center_x + r*cos(world->nb_ticks/50.f);
+    world->player.y = center_y + r*sin(world->nb_ticks/50.f);
 }
 
 int draw(SDL_Renderer *renderer, World const *world) {
