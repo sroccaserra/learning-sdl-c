@@ -1,11 +1,17 @@
+#include <math.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
 #include <SDL2/SDL.h>
 
-void update(SDL_Rect *rect);
-int draw(SDL_Renderer *renderer, SDL_Rect *rect);
+typedef struct {
+    float x;
+    float y;
+} Player;
+
+void update(Player *player);
+int draw(SDL_Renderer *renderer, Player *player);
 
 int main()
 {
@@ -32,7 +38,7 @@ int main()
         goto RendererInitFailed;
     }
 
-    SDL_Rect rect = {10, 10, 10, 10};
+    Player player = {10, 10};
 
     SDL_Event event;
     bool quit = false;
@@ -42,8 +48,8 @@ int main()
                 quit = true;
             }
         }
-        update(&rect);
-        if(0 != draw(renderer, &rect)) {
+        update(&player);
+        if(0 != draw(renderer, &player)) {
             goto Fail;
         }
     }
@@ -59,21 +65,21 @@ WindowInitFailed:
     return status;
 }
 
-void update(SDL_Rect *rect) {
-    rect->x += 1;
+void update(Player *player) {
+    player->x += 1;
 }
 
-int draw(SDL_Renderer *renderer, SDL_Rect *rect) {
+int draw(SDL_Renderer *renderer, Player *player) {
     int result = 0;
 
     SDL_Color background_color = {63, 63, 63, 255};
-    SDL_Color green = {40, 255, 255, 255};
-
     result += SDL_SetRenderDrawColor(renderer, background_color.r, background_color.g, background_color.b, background_color.a);
     result += SDL_RenderClear(renderer);
 
+    SDL_Color green = {40, 255, 255, 255};
     result += SDL_SetRenderDrawColor(renderer, green.r, green.g, green.b, green.a);
-    result += SDL_RenderFillRect(renderer, rect);
+    SDL_Rect rect = {round(player->x), round(player-> y), 10, 10};
+    result += SDL_RenderFillRect(renderer, &rect);
 
     SDL_RenderPresent(renderer);
 
