@@ -32,13 +32,14 @@ int main()
     int status = EXIT_FAILURE;
     int w = 320;
     int h = 240;
+    int pixel_size = 3;
 
     Uint32 pixels[w*h];
     memset(pixels, 63, sizeof(pixels));
 
     SDL_Window *window = SDL_CreateWindow("SDL2",
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            w*2, h*2, SDL_WINDOW_SHOWN);
+            w*pixel_size, h*pixel_size, SDL_WINDOW_SHOWN);
     if(NULL == window)
     {
         fprintf(stderr, "Erreur SDL_CreateWindow : %s\n", SDL_GetError());
@@ -85,7 +86,7 @@ int main()
                     {
                         int mouseX = event.motion.x;
                         int mouseY = event.motion.y;
-                        pixels[(mouseY/2)*w + mouseX/2] = 0;
+                        pixels[(mouseY/pixel_size)*w + mouseX/pixel_size] = 0;
                     }
                     break;
             }
