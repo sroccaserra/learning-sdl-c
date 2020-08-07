@@ -18,9 +18,17 @@ typedef struct {
     Player player;
 } World;
 
+typedef struct {
+    int w;
+    int h;
+    Uint32 (*pixels)[];
+} Framebuffer;
+
 void init(World *world, int w, int h);
 void update(World *world);
-int draw(SDL_Renderer *renderer, SDL_Texture *texture, Uint32 pixels[], World const *world);
+void draw(Framebuffer *fb, World const *world);
+void draw_player(Framebuffer *fb, Player const *player);
+void cls(Framebuffer *fb);
 
 int main()
 {
@@ -30,12 +38,11 @@ int main()
     }
 
     int status = EXIT_FAILURE;
+
     int w = 320;
     int h = 240;
     int pixel_size = 3;
-
     Uint32 pixels[w*h];
-    memset(pixels, 63, sizeof(pixels));
 
     SDL_Window *window = SDL_CreateWindow("SDL2",
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -64,6 +71,10 @@ int main()
 
     World world;
     init(&world, w, h);
+    Framebuffer fb;
+    fb.w = w;
+    fb.h = h;
+    fb.pixels = &pixels;
 
     SDL_Event event;
     bool quit = false;
@@ -76,9 +87,15 @@ int main()
             }
         }
         update(&world);
-        if(0 != draw(renderer, texture, pixels, &world)) {
+        draw(&fb, &world);
+
+        int result = SDL_UpdateTexture(texture, NULL, fb.pixels, fb.w * sizeof(Uint32));
+        result += SDL_RenderCopy(renderer, texture, NULL, NULL);
+        if (0 != result) {
             goto Fail;
         }
+
+        SDL_RenderPresent(renderer);
     }
 
     status = EXIT_SUCCESS;
@@ -117,24 +134,17 @@ void update(World *world) {
     world->player.y = center_y + r*sin(alpha);
 }
 
-int draw(SDL_Renderer *renderer, SDL_Texture *texture, Uint32 pixels[], World const *world) {
-    int result = 0;
+void cls(Framebuffer *fb) {
+    memset(fb->pixels, 63, (fb->w*fb->h)*sizeof(Uint32));
+}
 
-    SDL_Color background_color = {63, 63, 63, 255};
-    result += SDL_SetRenderDrawColor(renderer, background_color.r, background_color.g, background_color.b, background_color.a);
-    result += SDL_RenderClear(renderer);
+void draw(Framebuffer *fb, World const *world) {
+    cls(fb);
 
-    SDL_UpdateTexture(texture, NULL, pixels, world->w * sizeof(Uint32));
-    SDL_RenderCopy(renderer, texture, NULL, NULL);
-
-    SDL_Color player_color = {40, 255, 255, 255};
-    result += SDL_SetRenderDrawColor(renderer, player_color.r, player_color.g, player_color.b, player_color.a);
     Player const *player = &world->player;
-    float size = 10;
-    SDL_Rect rect = {round(player->x - size/2), round(player->y - size/2), size, size};
-    result += SDL_RenderFillRect(renderer, &rect);
+    draw_player(fb, player);
+}
 
-    SDL_RenderPresent(renderer);
-
-    return result;
+void draw_player(Framebuffer *fb, Player const *player) {
+    (*fb->pixels)[(int)player->y*fb->w+(int)player->x] = 0xffffffff;
 }
