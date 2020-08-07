@@ -67,27 +67,11 @@ int main()
 
     SDL_Event event;
     bool quit = false;
-    bool leftMouseButtonDown = false;
     while (!quit) {
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
                     quit = true;
-                    break;
-                case SDL_MOUSEBUTTONUP:
-                    if (event.button.button == SDL_BUTTON_LEFT)
-                        leftMouseButtonDown = false;
-                    break;
-                case SDL_MOUSEBUTTONDOWN:
-                    if (event.button.button == SDL_BUTTON_LEFT)
-                        leftMouseButtonDown = true;
-                case SDL_MOUSEMOTION:
-                    if (leftMouseButtonDown)
-                    {
-                        int mouseX = event.motion.x;
-                        int mouseY = event.motion.y;
-                        pixels[(mouseY/pixel_size)*w + mouseX/pixel_size] = 0;
-                    }
                     break;
             }
         }
