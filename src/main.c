@@ -146,5 +146,9 @@ void draw(Framebuffer *fb, World const *world) {
 }
 
 void draw_player(Framebuffer *fb, Player const *player) {
-    (*fb->pixels)[(int)player->y*fb->w+(int)player->x] = 0xffffffff;
+    int x = round(player->x);
+    int y = round(player->y);
+    int player_color = 0xffffffff;
+
+    (*fb->pixels)[y*fb->w + x] = player_color;
 }
