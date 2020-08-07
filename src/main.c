@@ -6,6 +6,8 @@
 
 #include <SDL2/SDL.h>
 
+#define WHITE 0xffffffff
+
 typedef struct {
     float x;
     float y;
@@ -21,10 +23,12 @@ typedef struct {
 typedef struct {
     int w;
     int h;
+    int memory_size;
     Uint32 (*pixels)[];
 } Framebuffer;
 
-void init(World *world, int w, int h);
+void init_world(World *world, int w, int h);
+void init_framebuffer(Framebuffer *fb, int w, int h, Uint32 (*pixels)[]);
 void update(World *world);
 void draw(Framebuffer *fb, World const *world);
 void draw_player(Framebuffer *fb, Player const *player);
@@ -70,11 +74,10 @@ int main()
     }
 
     World world;
-    init(&world, w, h);
+    init_world(&world, w, h);
+
     Framebuffer fb;
-    fb.w = w;
-    fb.h = h;
-    fb.pixels = &pixels;
+    init_framebuffer(&fb, w, h, &pixels);
 
     SDL_Event event;
     bool quit = false;
@@ -111,7 +114,7 @@ WindowInitFailed:
     return status;
 }
 
-void init(World *world, int w, int h) {
+void init_world(World *world, int w, int h) {
     world->nb_ticks = 0;
     world->w = w;
     world->h = h;
@@ -119,6 +122,13 @@ void init(World *world, int w, int h) {
     Player *player = &world->player;
     player->x = 0;
     player->y = 0;
+}
+
+void init_framebuffer(Framebuffer *fb, int w, int h, Uint32 (*pixels)[]) {
+    fb->w = w;
+    fb->h = h;
+    fb->pixels = pixels;
+    fb->memory_size = w*h*sizeof(Uint32);
 }
 
 void update(World *world) {
@@ -135,20 +145,18 @@ void update(World *world) {
 }
 
 void cls(Framebuffer *fb) {
-    memset(fb->pixels, 63, (fb->w*fb->h)*sizeof(Uint32));
+    memset(fb->pixels, 63, fb->memory_size);
 }
 
 void draw(Framebuffer *fb, World const *world) {
     cls(fb);
-
-    Player const *player = &world->player;
-    draw_player(fb, player);
+    draw_player(fb, &world->player);
 }
 
 void draw_player(Framebuffer *fb, Player const *player) {
     int x = round(player->x);
     int y = round(player->y);
-    int player_color = 0xffffffff;
+    int player_color = WHITE;
 
     (*fb->pixels)[y*fb->w + x] = player_color;
 }
