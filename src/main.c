@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #include "SDL2/SDL.h"
 
@@ -86,7 +87,17 @@ int main()
 
     SDL_Event event;
     bool quit = false;
+    Uint32 nb_frames = 0;
+    Uint32 frame_start_ms, frame_end_ms;
+
+    struct timespec loop_start_time, loop_end_time;
+    clock_gettime(CLOCK_MONOTONIC, &loop_start_time);
+
     while (!quit) {
+        nb_frames += 1;
+        if (100 == nb_frames) {
+            frame_start_ms = SDL_GetTicks();
+        }
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
@@ -94,6 +105,7 @@ int main()
                     break;
             }
         }
+
         update(&world);
         draw(&fb, &world);
 
@@ -104,7 +116,18 @@ int main()
         }
 
         SDL_RenderPresent(renderer);
+        if (100 == nb_frames) {
+            frame_end_ms = SDL_GetTicks();
+        }
     }
+
+    clock_gettime(CLOCK_MONOTONIC, &loop_end_time);
+    unsigned long long total_time_ms = 1000 * (loop_end_time.tv_sec - loop_start_time.tv_sec) + (loop_end_time.tv_nsec - loop_start_time.tv_nsec) / 1000000;
+
+    printf("Nb frames: %d\n", nb_frames);
+    printf("Total time (ms): %llu\n", total_time_ms);
+    printf("Average FPS: %f\n", 1000.f*nb_frames/total_time_ms);
+    printf("100th frame time (ms): %d\n", frame_end_ms - frame_start_ms);
 
     status = EXIT_SUCCESS;
 Fail:
