@@ -79,6 +79,11 @@ int main()
     Framebuffer fb;
     init_framebuffer(&fb, w, h, &pixels);
 
+    char *fullscreen_config = getenv("FULLSCREEN");
+    if (NULL != fullscreen_config && 0 == strcmp("true", fullscreen_config)) {
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+    }
+
     SDL_Event event;
     bool quit = false;
     while (!quit) {
