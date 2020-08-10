@@ -1,39 +1,11 @@
-#include <math.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
 
 #include "SDL2/SDL.h"
 
-#define WHITE 0xffffffff
-
-typedef struct {
-    float x;
-    float y;
-} Player;
-
-typedef struct {
-    int nb_ticks;
-    int w;
-    int h;
-    Player player;
-} World;
-
-typedef struct {
-    int w;
-    int h;
-    int memory_size;
-    Uint32 (*pixels)[];
-} Framebuffer;
-
-void init_world(World *world, int w, int h);
-void init_framebuffer(Framebuffer *fb, int w, int h, Uint32 (*pixels)[]);
-void update(World *world);
-void draw(Framebuffer *fb, World const *world);
-void draw_player(Framebuffer *fb, Player const *player);
-void cls(Framebuffer *fb);
+#include "game.h"
 
 int main()
 {
@@ -140,51 +112,4 @@ WindowInitFailed:
     SDL_Quit();
 
     return status;
-}
-
-void init_world(World *world, int w, int h) {
-    world->nb_ticks = 0;
-    world->w = w;
-    world->h = h;
-
-    Player *player = &world->player;
-    player->x = 0;
-    player->y = 0;
-}
-
-void init_framebuffer(Framebuffer *fb, int w, int h, Uint32 (*pixels)[]) {
-    fb->w = w;
-    fb->h = h;
-    fb->pixels = pixels;
-    fb->memory_size = w*h*sizeof(Uint32);
-}
-
-void update(World *world) {
-    world->nb_ticks += 1;
-
-    float center_x = world->w/2;
-    float center_y = world->h/2;
-
-    float r = 0.4*world->h;
-    float alpha = world->nb_ticks/50.f;
-
-    world->player.x = center_x + r*cos(alpha);
-    world->player.y = center_y + r*sin(alpha);
-}
-
-void cls(Framebuffer *fb) {
-    memset(fb->pixels, 63, fb->memory_size);
-}
-
-void draw(Framebuffer *fb, World const *world) {
-    cls(fb);
-    draw_player(fb, &world->player);
-}
-
-void draw_player(Framebuffer *fb, Player const *player) {
-    int x = round(player->x);
-    int y = round(player->y);
-    int player_color = WHITE;
-
-    (*fb->pixels)[y*fb->w + x] = player_color;
 }
