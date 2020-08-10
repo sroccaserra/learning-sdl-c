@@ -37,9 +37,37 @@ void cls(Framebuffer *fb) {
     memset(fb->pixels, 63, fb->memory_size);
 }
 
+Uint32 color_plasma(double rx, double ry, double t) {
+    double rt = t/50.;
+
+    double cx = rx + 0.5*sin(rt/5);
+    double cy = ry + 0.5*cos(rt/3);
+
+    double v =
+        sin(10.*rx + rt) +
+        sin((10.*ry + rt)/2.) +
+        sin((10.*(rx + ry) + rt)/2.) +
+        sin(10.*(rx*sin(rt/2.) + ry*cos(rt/3.)) + rt) +
+        sin(sqrt(100.*(cx*cx + cy*cy) + 1.) + rt);
+
+    v = v/2.;
+
+    int r = 255*(0.5 + 0.5*sin(v*M_PI));
+    int g = 255*(0.5 + 0.5*sin(v*M_PI + 2.*M_PI/3));
+    int b = 255*(0.5 + 0.5*sin(v*M_PI + 4.*M_PI/3));
+
+    return (r << 24) + (g << 16) + (b << 8) + 0xff;
+}
+
 void draw(Framebuffer *fb, World const *world) {
-    cls(fb);
-    draw_player(fb, &world->player);
+    for (Uint32 y = 0; y < world->h; ++y) {
+        const Sint32 y_offset = y*fb->w;
+        double ry = (double)y/fb->h - 0.5;
+        for (Uint32 x = 0; x < world->w; ++x) {
+            double rx = (double)x/fb->w - 0.5;
+            (*fb->pixels)[y_offset + x] = color_plasma(rx, ry, world->nb_ticks);
+        }
+    }
 }
 
 void draw_player(Framebuffer *fb, Player const *player) {
