@@ -16,9 +16,9 @@ int main()
 
     int status = EXIT_FAILURE;
 
-    int w = 320;
-    int h = 240;
-    int pixel_size = 3;
+    Uint32 w = 320;
+    Uint32 h = 240;
+    Uint32 pixel_size = 3;
     Uint32 pixels[w*h];
 
     SDL_Window *window = SDL_CreateWindow("SDL2",

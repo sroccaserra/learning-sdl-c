@@ -3,7 +3,7 @@
 
 #include "game.h"
 
-void init_world(World *world, int w, int h) {
+void init_world(World *world, Uint32 w, Uint32 h) {
     world->nb_ticks = 0;
     world->w = w;
     world->h = h;
@@ -13,7 +13,7 @@ void init_world(World *world, int w, int h) {
     player->y = 0;
 }
 
-void init_framebuffer(Framebuffer *fb, int w, int h, Uint32 (*pixels)[]) {
+void init_framebuffer(Framebuffer *fb, Uint32 w, Uint32 h, Uint32 (*pixels)[]) {
     fb->w = w;
     fb->h = h;
     fb->pixels = pixels;
@@ -43,9 +43,9 @@ void draw(Framebuffer *fb, World const *world) {
 }
 
 void draw_player(Framebuffer *fb, Player const *player) {
-    int x = round(player->x);
-    int y = round(player->y);
-    int player_color = WHITE;
+    Sint32 x = round(player->x);
+    Sint32 y = round(player->y);
+    Uint32 player_color = WHITE;
 
     (*fb->pixels)[y*fb->w + x] = player_color;
 }

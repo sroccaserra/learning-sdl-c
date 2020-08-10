@@ -11,21 +11,21 @@ typedef struct {
 } Player;
 
 typedef struct {
-    int nb_ticks;
-    int w;
-    int h;
+    Uint32 nb_ticks;
+    Uint32 w;
+    Uint32 h;
     Player player;
 } World;
 
 typedef struct {
-    int w;
-    int h;
-    int memory_size;
+    Uint32 w;
+    Uint32 h;
+    Uint32 memory_size;
     Uint32 (*pixels)[];
 } Framebuffer;
 
-void init_world(World *world, int w, int h);
-void init_framebuffer(Framebuffer *fb, int w, int h, Uint32 (*pixels)[]);
+void init_world(World *world, Uint32 w, Uint32 h);
+void init_framebuffer(Framebuffer *fb, Uint32 w, Uint32 h, Uint32 (*pixels)[]);
 void update(World *world);
 void draw(Framebuffer *fb, World const *world);
 void draw_player(Framebuffer *fb, Player const *player);
