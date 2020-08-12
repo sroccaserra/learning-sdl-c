@@ -61,14 +61,13 @@ int main()
     bool quit = false;
     Uint32 nb_frames = 0;
     Uint32 frame_start_ms, frame_end_ms;
+    Uint32 frame_measure_start = 100;
+    Uint32 nb_measured_frames = 5;
+    double frame_average = 0;
 
     const double loop_start_time_ms = get_time_ms();
 
     while (!quit) {
-        nb_frames += 1;
-        if (100 == nb_frames) {
-            frame_start_ms = SDL_GetTicks();
-        }
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
@@ -77,8 +76,16 @@ int main()
             }
         }
 
+        nb_frames += 1;
+        if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
+            frame_start_ms = SDL_GetTicks();
+        }
         update(&world);
         draw(&fb, &world);
+        if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
+            frame_end_ms = SDL_GetTicks();
+            frame_average += (double)(frame_end_ms - frame_start_ms)/nb_measured_frames;
+        }
 
         int result = SDL_UpdateTexture(texture, NULL, fb.pixels, fb.w * sizeof(Uint32));
         result += SDL_RenderCopy(renderer, texture, NULL, NULL);
@@ -87,9 +94,6 @@ int main()
         }
 
         SDL_RenderPresent(renderer);
-        if (100 == nb_frames) {
-            frame_end_ms = SDL_GetTicks();
-        }
     }
 
     const double total_time_ms = get_time_ms() - loop_start_time_ms;
@@ -97,7 +101,8 @@ int main()
     printf("\nNb frames: %d\n", nb_frames);
     printf("Total time (ms): %f\n", total_time_ms);
     printf("Average FPS: %f\n", 1000.f*nb_frames/total_time_ms);
-    printf("100th frame time (ms): %d\n", frame_end_ms - frame_start_ms);
+    printf("100th frame computing time (ms): %d\n", frame_end_ms - frame_start_ms);
+    printf("Average frame computing time (ms): %f\n", frame_average);
 
     status = EXIT_SUCCESS;
 Fail:
