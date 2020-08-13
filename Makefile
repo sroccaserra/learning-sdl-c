@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Iinclude
+CFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Werror -Iinclude
 LDFLAGS = -lsdl2
 
 C_FILES = $(filter-out src/main.c, $(wildcard src/*.c))
