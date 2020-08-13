@@ -2,7 +2,6 @@
 #include <string.h>
 
 #include "game.h"
-#include "plasma.h"
 
 void init_world(World *world, Uint32 w, Uint32 h) {
     world->nb_ticks = 0;
@@ -39,7 +38,8 @@ void cls(Framebuffer *fb) {
 }
 
 void draw(Framebuffer *fb, World const *world) {
-    draw_plasma(fb->pixels, fb->w, fb->h, world->nb_ticks);
+    cls(fb);
+    draw_player(fb, &world->player);
 }
 
 void draw_player(Framebuffer *fb, Player const *player) {
