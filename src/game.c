@@ -2,7 +2,7 @@
 #include <string.h>
 
 #include "game.h"
-#include "poly_sin_cos.h"
+#include "plasma.h"
 
 void init_world(World *world, Uint32 w, Uint32 h) {
     world->nb_ticks = 0;
@@ -38,37 +38,8 @@ void cls(Framebuffer *fb) {
     memset(fb->pixels, 63, fb->memory_size);
 }
 
-Uint32 color_plasma(double rx, double ry, double t) {
-    double rt = t/50.;
-
-    double cx = rx + 0.5*poly_sin(rt/5);
-    double cy = ry + 0.5*poly_cos(rt/3);
-
-    double v =
-        poly_sin(10.*rx + rt) +
-        poly_sin((10.*ry + rt)/2.) +
-        poly_sin((10.*(rx + ry) + rt)/2.) +
-        poly_sin(10.*(rx*poly_sin(rt/2.) + ry*poly_cos(rt/3.)) + rt) +
-        poly_sin(sqrt(100.*(cx*cx + cy*cy) + 1.) + rt);
-
-    v = v/2.;
-
-    int r = 255*(0.5 + 0.5*poly_sin(v*M_PI));
-    int g = 255*(0.5 + 0.5*poly_sin(v*M_PI + 2.*M_PI/3));
-    int b = 255*(0.5 + 0.5*poly_sin(v*M_PI + 4.*M_PI/3));
-
-    return (r << 24) + (g << 16) + (b << 8) + 0xff;
-}
-
 void draw(Framebuffer *fb, World const *world) {
-    for (Uint32 y = 0; y < world->h; ++y) {
-        const Sint32 y_offset = y*fb->w;
-        double ry = (double)y/fb->h - 0.5;
-        for (Uint32 x = 0; x < world->w; ++x) {
-            double rx = (double)x/fb->w - 0.5;
-            (*fb->pixels)[y_offset + x] = color_plasma(rx, ry, world->nb_ticks);
-        }
-    }
+    draw_plasma(fb->pixels, fb->w, fb->h, world->nb_ticks);
 }
 
 void draw_player(Framebuffer *fb, Player const *player) {
