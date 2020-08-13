@@ -1,6 +1,6 @@
 CC = clang
-CFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Werror -Iinclude
-LDFLAGS = -lsdl2
+CFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Werror -Iinclude $(shell sdl2-config --cflags)
+LDFLAGS = $(shell sdl2-config --libs)
 
 C_FILES = $(filter-out src/main.c, $(wildcard src/*.c))
 OBJ_FILES = $(C_FILES:.c=.o)

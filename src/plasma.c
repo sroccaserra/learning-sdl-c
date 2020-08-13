@@ -1,7 +1,7 @@
 #include <math.h>
 #include <stdint.h>
 
-#include "SDL2/SDL.h"
+#include "SDL.h"
 
 #include "poly_sin_cos.h"
 #include "plasma.h"

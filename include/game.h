@@ -1,7 +1,7 @@
 #ifndef _GAME_H_
 #define _GAME_H_
 
-#include "SDL2/SDL.h"
+#include "SDL.h"
 
 #define WHITE 0xffffffff
 
