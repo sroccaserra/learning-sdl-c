@@ -2,21 +2,23 @@ CC = clang
 CFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Iinclude
 LDFLAGS = -lsdl2
 
-C_FILES = $(wildcard src/*.c)
-HEADERS_FILES = $(wildcard src/*.h)
+C_FILES = $(filter-out src/main.c, $(wildcard src/*.c))
 OBJ_FILES = $(C_FILES:.c=.o)
 
 EXEC_NAME = learning-sdl-c
 
-all: CFLAGS += -O3
+.PHONY: all
+all: CFLAGS += -O2
 all: $(EXEC_NAME)
 
-$(EXEC_NAME): $(OBJ_FILES)
-	$(CC) $(LDFLAGS) $(OBJ_FILES) -o $@
+$(EXEC_NAME): $(OBJ_FILES) src/main.o
+	$(CC) $(LDFLAGS) $(OBJ_FILES) src/main.o -o $@
 
+.PHONY: run
 run: $(EXEC_NAME)
 	./$(EXEC_NAME)
 
+.PHONY: debug
 debug: CFLAGS += -O0 -DDEBUG -g
 debug: $(EXEC_NAME)
 	@echo "To debug on macOs, use:"
@@ -24,6 +26,7 @@ debug: $(EXEC_NAME)
 	@echo "(lldb) b main"
 	@echo "(lldb) run"
 
+.PHONY: clean
 clean:
 	rm -f $(OBJ_FILES)
 	rm -f $(EXEC_NAME)
