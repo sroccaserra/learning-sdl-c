@@ -1,2 +1,3 @@
 learning-sdl-c
+scripts/poly_sin_cos_perf
 *.o
