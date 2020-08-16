@@ -26,7 +26,16 @@ debug: $(EXEC_NAME)
 	@echo "(lldb) b main"
 	@echo "(lldb) run"
 
+scripts/poly_sin_cos_perf: CFLAGS += -O2 -ffast-math
+scripts/poly_sin_cos_perf: $(OBJ_FILES)
+
+.PHONY: perf
+perf: LDFLAGS += -Lsrc
+perf: scripts/poly_sin_cos_perf
+	scripts/poly_sin_cos_perf
+
 .PHONY: clean
 clean:
 	rm -f $(OBJ_FILES) src/main.o
 	rm -f $(EXEC_NAME)
+	rm -f scripts/poly_sin_cos_perf
