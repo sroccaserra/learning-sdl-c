@@ -46,11 +46,29 @@ int main()
         goto TextureCreationFailed;
     }
 
+    SDL_Texture *low_res_screen = SDL_CreateTexture(renderer,
+            SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
+            w, h);
+    SDL_Surface *tileset = SDL_LoadBMP("assets/Sprite-0001.bmp");
+    if (NULL == tileset) {
+        fprintf(stderr, "Erreur loading bmp: %s", SDL_GetError());
+        goto TextureCreationFailed;
+    }
+
+    SDL_Texture *tileset_texture = SDL_CreateTextureFromSurface(renderer, tileset);
+    if (NULL == tileset_texture) {
+        fprintf(stderr, "Erreur loading bmp: %s", SDL_GetError());
+        goto TextureCreationFailed;
+    }
+
+    SDL_FreeSurface(tileset);
+
     World world;
     init_world(&world, w, h);
 
     Framebuffer fb;
     init_framebuffer(&fb, w, h, &pixels);
+    Uint32 bg_x = 0;
 
     char *fullscreen_config = getenv("FULLSCREEN");
     if (NULL != fullscreen_config && 0 == strcmp("true", fullscreen_config)) {
@@ -81,6 +99,8 @@ int main()
             frame_start_ms = SDL_GetTicks();
         }
         update(&world);
+        bg_x += 1;
+        bg_x %= w;
         draw(&fb, &world);
         if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
             frame_end_ms = SDL_GetTicks();
@@ -88,7 +108,24 @@ int main()
         }
 
         int result = SDL_UpdateTexture(texture, NULL, fb.pixels, fb.w * sizeof(Uint32));
+        result += SDL_SetRenderTarget(renderer, low_res_screen);
         result += SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_Rect src_rect;
+        src_rect.x = 0;
+        src_rect.y = 0;
+        src_rect.w = 16;
+        src_rect.h = 16;
+
+        double r = (1+sin(10*bg_x*M_PI/w));
+        SDL_Rect dst_rect;
+        dst_rect.x = bg_x;
+        dst_rect.y = r*10;
+        dst_rect.w = 8+8*r;
+        dst_rect.h = 8+8*r;
+
+        result += SDL_RenderCopy(renderer, tileset_texture, &src_rect, &dst_rect);
+        result += SDL_SetRenderTarget(renderer, NULL);
+        result += SDL_RenderCopy(renderer, low_res_screen, NULL, NULL);
         if (0 != result) {
             goto Fail;
         }
