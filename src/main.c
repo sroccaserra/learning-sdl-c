@@ -44,6 +44,11 @@ int main()
         goto RendererInitFailed;
     }
 
+    char *fullscreen_config = getenv("FULLSCREEN");
+    if (NULL != fullscreen_config && 0 == strcmp("true", fullscreen_config)) {
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+    }
+
     SDL_Texture *texture = SDL_CreateTexture(renderer,
             SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC,
             w, h);
@@ -55,24 +60,20 @@ int main()
     SDL_Texture *low_res_screen = SDL_CreateTexture(renderer,
             SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
             w, h);
-    SDL_Surface *tileset = SDL_LoadBMP("assets/Sprite-0001.bmp");
+
+    SDL_Surface *tileset_surface = SDL_LoadBMP("assets/Sprite-0001.bmp");
+    if (NULL == tileset_surface) {
+        fprintf(stderr, "Erreur loading bmp: %s", SDL_GetError());
+        goto TextureCreationFailed;
+    }
+
+    SDL_Texture *tileset = SDL_CreateTextureFromSurface(renderer, tileset_surface);
     if (NULL == tileset) {
         fprintf(stderr, "Erreur loading bmp: %s", SDL_GetError());
         goto TextureCreationFailed;
     }
 
-    char *fullscreen_config = getenv("FULLSCREEN");
-    if (NULL != fullscreen_config && 0 == strcmp("true", fullscreen_config)) {
-        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
-    }
-
-    SDL_Texture *tileset_texture = SDL_CreateTextureFromSurface(renderer, tileset);
-    if (NULL == tileset_texture) {
-        fprintf(stderr, "Erreur loading bmp: %s", SDL_GetError());
-        goto TextureCreationFailed;
-    }
-
-    SDL_FreeSurface(tileset);
+    SDL_FreeSurface(tileset_surface);
 
     World world;
     init_world(&world, w, h);
@@ -85,7 +86,7 @@ int main()
         (w-WALL_TEXTURE_W)/2, (h-WALL_TEXTURE_H)/2,
         1, 1,
         0, {WALL_TEXTURE_W/2, WALL_TEXTURE_H/2},
-        tileset_texture
+        tileset
     };
 
     SDL_Event event;
