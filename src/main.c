@@ -6,6 +6,7 @@
 
 #include "game.h"
 #include "get_time_ms.h"
+#include "panel.h"
 
 int main()
 {
@@ -55,6 +56,11 @@ int main()
         goto TextureCreationFailed;
     }
 
+    char *fullscreen_config = getenv("FULLSCREEN");
+    if (NULL != fullscreen_config && 0 == strcmp("true", fullscreen_config)) {
+        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+    }
+
     SDL_Texture *tileset_texture = SDL_CreateTextureFromSurface(renderer, tileset);
     if (NULL == tileset_texture) {
         fprintf(stderr, "Erreur loading bmp: %s", SDL_GetError());
@@ -68,12 +74,14 @@ int main()
 
     Framebuffer fb;
     init_framebuffer(&fb, w, h, &pixels);
-    Uint32 bg_x = 0;
 
-    char *fullscreen_config = getenv("FULLSCREEN");
-    if (NULL != fullscreen_config && 0 == strcmp("true", fullscreen_config)) {
-        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
-    }
+    Panel wall_panel = {
+        {0, 0, 16, 16},
+        10, 10,
+        1, 1,
+        0, {8, 8},
+        tileset_texture
+    };
 
     SDL_Event event;
     bool quit = false;
@@ -99,8 +107,13 @@ int main()
             frame_start_ms = SDL_GetTicks();
         }
         update(&world);
-        bg_x += 1;
-        bg_x %= w;
+
+        wall_panel.x += 1;
+        if (wall_panel.x > w) {
+            wall_panel.x -= w;
+        }
+        wall_panel.alpha += 6*M_1_PI;
+
         draw(&fb, &world);
         if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
             frame_end_ms = SDL_GetTicks();
@@ -110,20 +123,9 @@ int main()
         int result = SDL_UpdateTexture(texture, NULL, fb.pixels, fb.w * sizeof(Uint32));
         result += SDL_SetRenderTarget(renderer, low_res_screen);
         result += SDL_RenderCopy(renderer, texture, NULL, NULL);
-        SDL_Rect src_rect;
-        src_rect.x = 0;
-        src_rect.y = 0;
-        src_rect.w = 16;
-        src_rect.h = 16;
 
-        double r = (1+sin(10*bg_x*M_PI/w));
-        SDL_Rect dst_rect;
-        dst_rect.x = bg_x;
-        dst_rect.y = r*10;
-        dst_rect.w = 8+8*r;
-        dst_rect.h = 8+8*r;
+        result += draw_panel(renderer, &wall_panel);
 
-        result += SDL_RenderCopy(renderer, tileset_texture, &src_rect, &dst_rect);
         result += SDL_SetRenderTarget(renderer, NULL);
         result += SDL_RenderCopy(renderer, low_res_screen, NULL, NULL);
         if (0 != result) {
