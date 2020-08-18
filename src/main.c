@@ -8,6 +8,11 @@
 #include "get_time_ms.h"
 #include "panel.h"
 
+static const double WALL_TEXTURE_X = 0;
+static const double WALL_TEXTURE_Y = 0;
+static const double WALL_TEXTURE_W = 16;
+static const double WALL_TEXTURE_H = 16;
+
 int main()
 {
     if(0 != SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
@@ -76,10 +81,10 @@ int main()
     init_framebuffer(&fb, w, h, &pixels);
 
     Panel wall_panel = {
-        {0, 0, 16, 16},
-        10, 10,
+        {WALL_TEXTURE_X, WALL_TEXTURE_Y, WALL_TEXTURE_W, WALL_TEXTURE_H},
+        (w-WALL_TEXTURE_W)/2, (h-WALL_TEXTURE_H)/2,
         1, 1,
-        0, {8, 8},
+        0, {WALL_TEXTURE_W/2, WALL_TEXTURE_H/2},
         tileset_texture
     };
 
