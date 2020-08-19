@@ -102,43 +102,90 @@ ReturnStatus run_game_loop(ReturnStatus previous, Context *context) {
     Uint32 nb_measured_frames = 5;
     double frame_average_ms = 0;
 
+    int kb_x_direction = 0;
+    int kb_y_direction = 0;
     while (!quit) {
+
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
                 case SDL_QUIT:
                     quit = true;
                     break;
+                case SDL_KEYDOWN:
+                    switch (event.key.keysym.sym) {
+                        case SDLK_LEFT:
+                            kb_x_direction = -1;
+                            break;
+                        case SDLK_RIGHT:
+                            kb_x_direction = 1;
+                            break;
+                        case SDLK_UP:
+                            kb_y_direction = -1;
+                            break;
+                        case SDLK_DOWN:
+                            kb_y_direction = 1;
+                            break;
+                    }
+                    break;
+                case SDL_KEYUP:
+                    switch (event.key.keysym.sym) {
+                        case SDLK_LEFT:
+                            if (kb_x_direction < 0)
+                                kb_x_direction = 0;
+                            break;
+                        case SDLK_RIGHT:
+                            if (kb_x_direction > 0)
+                                kb_x_direction = 0;
+                            break;
+                        case SDLK_UP:
+                            if (kb_y_direction < 0)
+                                kb_y_direction = 0;
+                            break;
+                        case SDLK_DOWN:
+                            if (kb_y_direction > 0)
+                                kb_y_direction = 0;
+                            break;
+                    }
+                    break;
             }
         }
 
         nb_frames += 1;
+
         if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
             frame_start_ms = SDL_GetTicks();
         }
 
-        if (1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) {
-            character_panel.x += 1;
-            if (character_panel.x > context->w) {
-                character_panel.x -= context->w;
-            }
+        int x_direction = 0;
+        int y_direction = 0;
+
+        if (kb_x_direction == 1 || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) {
+            x_direction = 1;
         }
-        if (1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) {
-            character_panel.x -= 1;
-            if (character_panel.x < 0) {
-                character_panel.x += context->w;
-            }
+        if (kb_x_direction == -1 || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) {
+            x_direction = -1;
         }
-        if (1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
-            character_panel.y -= 1;
-            if (character_panel.y < 0) {
-                character_panel.y += context->h;
-            }
+        if (kb_y_direction == -1 || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
+            y_direction = -1;
         }
-        if (1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
-            character_panel.y += 1;
-            if (character_panel.y > context->h) {
-                character_panel.y -= context->h;
-            }
+        if (kb_y_direction == 1 || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
+            y_direction = 1;
+        }
+
+        character_panel.x += x_direction;
+        if (character_panel.x > context->w) {
+            character_panel.x -= context->w;
+        }
+        if (character_panel.x < 0) {
+            character_panel.x += context->w;
+        }
+
+        character_panel.y += y_direction;
+        if (character_panel.y < 0) {
+            character_panel.y += context->h;
+        }
+        if (character_panel.y > context->h) {
+            character_panel.y -= context->h;
         }
 
         if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
