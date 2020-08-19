@@ -51,19 +51,22 @@ int main()
             SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
             w, h);
 
-    SDL_Surface *tileset_surface = SDL_LoadBMP("assets/Sprite-0001.bmp");
-    if (NULL == tileset_surface) {
+    SDL_Surface *sprite_tiles_surface = SDL_LoadBMP("assets/Sprite-0001.bmp");
+    if (NULL == sprite_tiles_surface) {
         fprintf(stderr, "Erreur loading bmp: %s", SDL_GetError());
         goto TextureCreationFailed;
     }
 
-    SDL_Texture *tileset = SDL_CreateTextureFromSurface(renderer, tileset_surface);
-    if (NULL == tileset) {
+    Uint32 *pixels = sprite_tiles_surface->pixels;
+    SDL_SetColorKey(sprite_tiles_surface, SDL_TRUE, *pixels);
+
+    SDL_Texture *sprite_tiles = SDL_CreateTextureFromSurface(renderer, sprite_tiles_surface);
+    if (NULL == sprite_tiles) {
         fprintf(stderr, "Erreur loading bmp: %s", SDL_GetError());
         goto TextureCreationFailed;
     }
 
-    SDL_FreeSurface(tileset_surface);
+    SDL_FreeSurface(sprite_tiles_surface);
 
     const double zoom_factor = 3;
     const double size_x = zoom_factor*WALL_TEXTURE_W;
@@ -73,7 +76,7 @@ int main()
         (w-size_x)/2, (h-size_y)/2,
         zoom_factor, zoom_factor,
         0, {size_x/2, size_y/2},
-        tileset
+        sprite_tiles
     };
 
     SDL_Event event;
@@ -133,7 +136,7 @@ int main()
     status = EXIT_SUCCESS;
 
     SDL_DestroyTexture(low_res_screen);
-    SDL_DestroyTexture(tileset);
+    SDL_DestroyTexture(sprite_tiles);
 TextureCreationFailed:
     SDL_DestroyRenderer(renderer);
 RendererInitFailed:
