@@ -32,6 +32,7 @@ typedef struct {
     FrameStatistics stats;
 } Context;
 
+void init_context(Context *context, int w, int h, int pixel_size);
 ReturnStatus init_window_renderer_and_screen_texture(Context *context);
 ReturnStatus init_sprite_tiles(ReturnStatus previous, Context *context);
 ReturnStatus run_game_loop(ReturnStatus previous, Context *context);
@@ -41,9 +42,7 @@ void clean_context(Context *context);
 int main()
 {
     Context context;
-    context.w = 320;
-    context.h = 240;
-    context.pixel_size = 3;
+    init_context(&context, 320, 240, 3);
 
     char *fullscreen_config = getenv("FULLSCREEN");
     context.is_full_screen = (NULL != fullscreen_config) && (0 == strcmp("true", fullscreen_config));
@@ -60,6 +59,18 @@ int main()
     }
 
     return EXIT_SUCCESS;
+}
+
+void init_context(Context *context, int w, int h, int pixel_size) {
+    context->w = w;
+    context->h = h;
+    context->pixel_size = pixel_size;
+    context->is_full_screen = false;
+
+    context->window = NULL;
+    context->renderer = NULL;
+    context->low_res_screen = NULL;
+    context->sprite_tiles = NULL;
 }
 
 ReturnStatus init_window_renderer_and_screen_texture(Context *context) {
