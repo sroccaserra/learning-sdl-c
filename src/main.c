@@ -29,15 +29,19 @@ typedef struct {
     SDL_Texture *low_res_screen;
     SDL_Texture *sprite_tiles;
 
+    SDL_GameController *controller;
+
     FrameStatistics stats;
 } Context;
 
 void init_context(Context *context, int w, int h, int pixel_size);
+void clean_context(Context *context);
+
 ReturnStatus init_window_renderer_and_screen_texture(Context *context);
 ReturnStatus init_sprite_tiles(ReturnStatus previous, Context *context);
+ReturnStatus init_controller(ReturnStatus previous, Context *context);
 ReturnStatus run_game_loop(ReturnStatus previous, Context *context);
 void print_stats(FrameStatistics stats);
-void clean_context(Context *context);
 
 int main()
 {
@@ -49,6 +53,7 @@ int main()
 
     ReturnStatus status = init_window_renderer_and_screen_texture(&context);
     status = init_sprite_tiles(status, &context);
+    status = init_controller(status, &context);
     status = run_game_loop(status, &context);
 
     print_stats(context.stats);
@@ -71,10 +76,32 @@ void init_context(Context *context, int w, int h, int pixel_size) {
     context->renderer = NULL;
     context->low_res_screen = NULL;
     context->sprite_tiles = NULL;
+
+    context->controller = NULL;
+}
+
+void clean_context(Context *context) {
+    if (NULL != context->controller) {
+        SDL_GameControllerClose(context->controller);
+    }
+    if (NULL != context->sprite_tiles) {
+        SDL_DestroyTexture(context->sprite_tiles);
+    }
+    if (NULL != context->low_res_screen) {
+        SDL_DestroyTexture(context->low_res_screen);
+    }
+    if (NULL != context->renderer) {
+        SDL_DestroyRenderer(context->renderer);
+    }
+    if (NULL != context->window) {
+        SDL_DestroyWindow(context->window);
+    }
+
+    SDL_Quit();
 }
 
 ReturnStatus init_window_renderer_and_screen_texture(Context *context) {
-    if(0 != SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
+    if(0 != SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER)) {
         fprintf(stderr, "SDL_Init error: %s\n", SDL_GetError());
         return STATUS_ERROR;
     }
@@ -135,6 +162,27 @@ ReturnStatus init_sprite_tiles(ReturnStatus previous, Context *context) {
     return STATUS_SUCCESS;
 }
 
+ReturnStatus init_controller(ReturnStatus previous, Context *context) {
+    if (STATUS_SUCCESS != previous) {
+        return previous;
+    }
+
+    for (int i = 0; i < SDL_NumJoysticks(); ++i) {
+        if (SDL_IsGameController(i)) {
+            printf("%d is a game controller\n", i);
+            context->controller = SDL_GameControllerOpen(i);
+            if (NULL == context->controller) {
+                fprintf(stderr, "Could not open gamecontroller %i: %s\n", i, SDL_GetError());
+                return STATUS_ERROR;
+            }
+            return STATUS_SUCCESS;
+        }
+    }
+    printf("No controller found!\n");
+
+    return STATUS_SUCCESS;
+}
+
 ReturnStatus run_game_loop(ReturnStatus previous, Context *context) {
     if (STATUS_SUCCESS != previous) {
         return previous;
@@ -181,11 +229,30 @@ ReturnStatus run_game_loop(ReturnStatus previous, Context *context) {
             frame_start_ms = SDL_GetTicks();
         }
 
-        character_panel.x += 1;
-        if (character_panel.x > context->w) {
-            character_panel.x -= context->w;
+        if (1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) {
+            character_panel.x += 1;
+            if (character_panel.x > context->w) {
+                character_panel.x -= context->w;
+            }
         }
-        character_panel.alpha += 6*M_1_PI;
+        if (1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) {
+            character_panel.x -= 1;
+            if (character_panel.x < 0) {
+                character_panel.x += context->w;
+            }
+        }
+        if (1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
+            character_panel.y -= 1;
+            if (character_panel.y < 0) {
+                character_panel.y += context->h;
+            }
+        }
+        if (1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
+            character_panel.y += 1;
+            if (character_panel.y > context->h) {
+                character_panel.y -= context->h;
+            }
+        }
 
         if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
             frame_end_ms = SDL_GetTicks();
@@ -217,21 +284,4 @@ void print_stats(FrameStatistics stats) {
     printf("Total time (ms): %f\n", stats.total_time_ms);
     printf("Average FPS: %f\n", 1000.f*stats.nb_frames/stats.total_time_ms);
     printf("Average frame computing time (ms): %f\n", stats.frame_average_ms);
-}
-
-void clean_context(Context *context) {
-    if (NULL != context->sprite_tiles) {
-        SDL_DestroyTexture(context->sprite_tiles);
-    }
-    if (NULL != context->low_res_screen) {
-        SDL_DestroyTexture(context->low_res_screen);
-    }
-    if (NULL != context->renderer) {
-        SDL_DestroyRenderer(context->renderer);
-    }
-    if (NULL != context->window) {
-        SDL_DestroyWindow(context->window);
-    }
-
-    SDL_Quit();
 }
