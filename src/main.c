@@ -12,6 +12,14 @@ static const double WALL_TEXTURE_Y = 0;
 static const double WALL_TEXTURE_W = 16;
 static const double WALL_TEXTURE_H = 16;
 
+typedef struct {
+    Uint32 nb_frames;
+    double frame_average_ms;
+    double total_time_ms;
+} FrameStatistics;
+
+FrameStatistics game_loop(SDL_Renderer *renderer, SDL_Texture *low_res_screen, int w, int h, SDL_Texture *sprite_tiles);
+
 int main()
 {
     if(0 != SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
@@ -68,6 +76,30 @@ int main()
 
     SDL_FreeSurface(sprite_tiles_surface);
 
+    const FrameStatistics stats = game_loop(renderer, low_res_screen, w, h, sprite_tiles);
+
+    printf("\nNb frames: %d\n", stats.nb_frames);
+    printf("Total time (ms): %f\n", stats.total_time_ms);
+    printf("Average FPS: %f\n", 1000.f*stats.nb_frames/stats.total_time_ms);
+    printf("Average frame computing time (ms): %f\n", stats.frame_average_ms);
+
+    status = EXIT_SUCCESS;
+
+    SDL_DestroyTexture(low_res_screen);
+    SDL_DestroyTexture(sprite_tiles);
+TextureCreationFailed:
+    SDL_DestroyRenderer(renderer);
+RendererInitFailed:
+    SDL_DestroyWindow(window);
+WindowInitFailed:
+    SDL_Quit();
+
+    return status;
+}
+
+FrameStatistics game_loop(SDL_Renderer *renderer, SDL_Texture *low_res_screen, int w, int h, SDL_Texture *sprite_tiles) {
+    const double loop_start_time_ms = get_time_ms();
+
     const double zoom_factor = 3;
     const double size_x = zoom_factor*WALL_TEXTURE_W;
     const double size_y = zoom_factor*WALL_TEXTURE_H;
@@ -81,13 +113,12 @@ int main()
 
     SDL_Event event;
     bool quit = false;
+
     Uint32 nb_frames = 0;
     Uint32 frame_start_ms, frame_end_ms;
     Uint32 frame_measure_start = 100;
     Uint32 nb_measured_frames = 5;
     double frame_average = 0;
-
-    const double loop_start_time_ms = get_time_ms();
 
     while (!quit) {
         while (SDL_PollEvent(&event)) {
@@ -127,22 +158,10 @@ int main()
 
     const double total_time_ms = get_time_ms() - loop_start_time_ms;
 
-    printf("\nNb frames: %d\n", nb_frames);
-    printf("Total time (ms): %f\n", total_time_ms);
-    printf("Average FPS: %f\n", 1000.f*nb_frames/total_time_ms);
-    printf("100th frame computing time (ms): %d\n", frame_end_ms - frame_start_ms);
-    printf("Average frame computing time (ms): %f\n", frame_average);
-
-    status = EXIT_SUCCESS;
-
-    SDL_DestroyTexture(low_res_screen);
-    SDL_DestroyTexture(sprite_tiles);
-TextureCreationFailed:
-    SDL_DestroyRenderer(renderer);
-RendererInitFailed:
-    SDL_DestroyWindow(window);
-WindowInitFailed:
-    SDL_Quit();
-
-    return status;
+    const FrameStatistics stats = {
+        nb_frames,
+        frame_average,
+        total_time_ms
+    };
+    return stats;
 }
