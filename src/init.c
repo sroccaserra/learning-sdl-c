@@ -2,7 +2,7 @@
 
 #include "init.h"
 
-ReturnStatus init_window_renderer_and_screen_texture(Context *context) {
+ReturnStatus init_window_renderer_and_screen_texture(PresentationContext *context) {
     if(0 != SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER)) {
         fprintf(stderr, "SDL_Init error: %s\n", SDL_GetError());
         return STATUS_ERROR;
@@ -40,7 +40,7 @@ ReturnStatus init_window_renderer_and_screen_texture(Context *context) {
     return STATUS_SUCCESS;
 }
 
-ReturnStatus init_sprite_tiles(ReturnStatus previous, Context *context) {
+ReturnStatus init_sprite_tiles(ReturnStatus previous, PresentationContext *context) {
     if (STATUS_SUCCESS != previous) {
         return previous;
     }
@@ -64,7 +64,7 @@ ReturnStatus init_sprite_tiles(ReturnStatus previous, Context *context) {
     return STATUS_SUCCESS;
 }
 
-ReturnStatus init_controller(ReturnStatus previous, Context *context) {
+ReturnStatus init_controller(ReturnStatus previous, PresentationContext *context) {
     if (STATUS_SUCCESS != previous) {
         return previous;
     }

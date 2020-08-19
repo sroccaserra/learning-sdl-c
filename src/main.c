@@ -7,13 +7,14 @@
 #include "get_time_ms.h"
 #include "init.h"
 #include "panel.h"
+#include "PresentationContext.h"
 
-ReturnStatus run_game_loop(ReturnStatus previous, Context *context);
+ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context);
 void print_stats(FrameStatistics stats);
 
 int main()
 {
-    Context context;
+    PresentationContext context;
     init_context(&context, 320, 240, 3);
 
     char *fullscreen_config = getenv("FULLSCREEN");
@@ -35,42 +36,9 @@ int main()
     return EXIT_SUCCESS;
 }
 
-void init_context(Context *context, int w, int h, int pixel_size) {
-    context->w = w;
-    context->h = h;
-    context->pixel_size = pixel_size;
-    context->is_full_screen = false;
-
-    context->window = NULL;
-    context->renderer = NULL;
-    context->low_res_screen = NULL;
-    context->sprite_tiles = NULL;
-
-    context->controller = NULL;
-}
-
-void clean_context(Context *context) {
-    if (NULL != context->controller) {
-        SDL_GameControllerClose(context->controller);
-    }
-    if (NULL != context->sprite_tiles) {
-        SDL_DestroyTexture(context->sprite_tiles);
-    }
-    if (NULL != context->low_res_screen) {
-        SDL_DestroyTexture(context->low_res_screen);
-    }
-    if (NULL != context->renderer) {
-        SDL_DestroyRenderer(context->renderer);
-    }
-    if (NULL != context->window) {
-        SDL_DestroyWindow(context->window);
-    }
-
-    SDL_Quit();
-}
 
 
-ReturnStatus run_game_loop(ReturnStatus previous, Context *context) {
+ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) {
     if (STATUS_SUCCESS != previous) {
         return previous;
     }
