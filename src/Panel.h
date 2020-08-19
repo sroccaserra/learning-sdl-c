@@ -4,7 +4,11 @@
 #include "SDL.h"
 
 typedef struct {
-    SDL_Rect tileset_position;
+    int tileset_x;
+    int tileset_y;
+    int tileset_w;
+    int tileset_h;
+
     double x;
     double y;
     double x_zoom;
@@ -14,6 +18,6 @@ typedef struct {
     SDL_Texture *tileset;
 } Panel;
 
-int draw_panel(SDL_Renderer *renderer, Panel *panel);
+int draw_panel(SDL_Renderer *renderer, const Panel *panel);
 
 #endif // _PANEL_H_

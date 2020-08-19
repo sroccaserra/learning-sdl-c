@@ -9,6 +9,7 @@
 #include "init.h"
 #include "Panel.h"
 #include "Player.h"
+#include "PlayerView.h"
 #include "PresentationContext.h"
 
 ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context);
@@ -57,12 +58,14 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
     const double size_x = zoom_factor*CHARACTER_TEXTURE_W;
     const double size_y = zoom_factor*CHARACTER_TEXTURE_H;
     Panel character_panel = {
-        {CHARACTER_TEXTURE_X, CHARACTER_TEXTURE_Y, CHARACTER_TEXTURE_W, CHARACTER_TEXTURE_H},
+        CHARACTER_TEXTURE_X, CHARACTER_TEXTURE_Y, CHARACTER_TEXTURE_W, CHARACTER_TEXTURE_H,
         player.x - size_x/2., player.y - size_y/2.,
         zoom_factor, zoom_factor,
         0, {size_x/2, size_y/2},
         context->sprite_tiles
     };
+
+    PlayerView player_view = {&player, &character_panel};
 
     SDL_Event event;
     bool quit = false;
@@ -157,13 +160,12 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
             player.y -= context->h;
         }
 
-        character_panel.x = player.x-size_x/2.;
-        character_panel.y = player.y-size_y/2.;
+        update_player_view(&player_view, &player);
 
         SDL_SetRenderTarget(context->renderer, context->low_res_screen);
         SDL_SetRenderDrawColor(context->renderer, 0x39, 0x39, 0x39, 0x39);
         SDL_RenderClear(context->renderer);
-        draw_panel(context->renderer, &character_panel);
+        draw_player(context->renderer, &player_view);
 
         SDL_SetRenderTarget(context->renderer, NULL);
         SDL_RenderCopy(context->renderer, context->low_res_screen, NULL, NULL);
