@@ -6,9 +6,10 @@
 
 typedef struct {
     Player *player;
-    Panel *panel;
+    Panel panel;
 } PlayerView;
 
+void init_player_view(PlayerView *player_view, const Player *player, SDL_Texture *tileset);
 void update_player_view(PlayerView *player_view, const Player *player);
 int draw_player(SDL_Renderer *renderer, const PlayerView *player_view);
 

@@ -49,23 +49,8 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
     Player player;
     init_player(&player, context->w/2., context->h/2.);
 
-    const double CHARACTER_TEXTURE_X = 0;
-    const double CHARACTER_TEXTURE_Y = 0;
-    const double CHARACTER_TEXTURE_W = 16;
-    const double CHARACTER_TEXTURE_H = 16;
-
-    const double zoom_factor = 3;
-    const double size_x = zoom_factor*CHARACTER_TEXTURE_W;
-    const double size_y = zoom_factor*CHARACTER_TEXTURE_H;
-    Panel character_panel = {
-        CHARACTER_TEXTURE_X, CHARACTER_TEXTURE_Y, CHARACTER_TEXTURE_W, CHARACTER_TEXTURE_H,
-        player.x - size_x/2., player.y - size_y/2.,
-        zoom_factor, zoom_factor,
-        0, {size_x/2, size_y/2},
-        context->sprite_tiles
-    };
-
-    PlayerView player_view = {&player, &character_panel};
+    PlayerView player_view;
+    init_player_view(&player_view, &player, context->sprite_tiles);
 
     SDL_Event event;
     bool quit = false;
@@ -160,11 +145,12 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
             player.y -= context->h;
         }
 
-        update_player_view(&player_view, &player);
 
         SDL_SetRenderTarget(context->renderer, context->low_res_screen);
         SDL_SetRenderDrawColor(context->renderer, 0x39, 0x39, 0x39, 0x39);
         SDL_RenderClear(context->renderer);
+
+        update_player_view(&player_view, &player);
         draw_player(context->renderer, &player_view);
 
         SDL_SetRenderTarget(context->renderer, NULL);
