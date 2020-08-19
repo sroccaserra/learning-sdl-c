@@ -6,7 +6,7 @@
 #include "SDL.h"
 
 #include "get_time_ms.h"
-#include "init.h"
+#include "init_display.h"
 #include "Panel.h"
 #include "Player.h"
 #include "PlayerView.h"

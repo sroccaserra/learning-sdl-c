@@ -1,6 +1,6 @@
 #include "SDL.h"
 
-#include "init.h"
+#include "init_display.h"
 
 ReturnStatus init_window_renderer_and_screen_texture(PresentationContext *context) {
     if(0 != SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_GAMECONTROLLER)) {
