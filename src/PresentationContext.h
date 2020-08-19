@@ -28,7 +28,7 @@ typedef struct {
     FrameStatistics stats;
 } PresentationContext;
 
-void init_context(PresentationContext *context, int w, int h, int pixel_size);
-void clean_context(PresentationContext *context);
+void init_presentation_context(PresentationContext *context, int w, int h, int pixel_size);
+void clean_presentation_context(PresentationContext *context);
 
 #endif // _PRESENTATION_CONTEXT_H_

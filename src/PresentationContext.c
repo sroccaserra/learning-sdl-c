@@ -2,7 +2,7 @@
 
 #include "PresentationContext.h"
 
-void init_context(PresentationContext *context, int w, int h, int pixel_size) {
+void init_presentation_context(PresentationContext *context, int w, int h, int pixel_size) {
     context->w = w;
     context->h = h;
     context->pixel_size = pixel_size;
@@ -16,7 +16,7 @@ void init_context(PresentationContext *context, int w, int h, int pixel_size) {
     context->controller = NULL;
 }
 
-void clean_context(PresentationContext *context) {
+void clean_presentation_context(PresentationContext *context) {
     if (NULL != context->controller) {
         SDL_GameControllerClose(context->controller);
     }

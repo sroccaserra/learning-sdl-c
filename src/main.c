@@ -18,7 +18,7 @@ void print_stats(FrameStatistics stats);
 int main()
 {
     PresentationContext context;
-    init_context(&context, 320, 240, 3);
+    init_presentation_context(&context, 320, 240, 3);
 
     char *fullscreen_config = getenv("FULLSCREEN");
     context.is_full_screen = (NULL != fullscreen_config) && (0 == strcmp("true", fullscreen_config));
@@ -30,7 +30,7 @@ int main()
     status = run_game_loop(status, &context);
 
     print_stats(context.stats);
-    clean_context(&context);
+    clean_presentation_context(&context);
 
     if (STATUS_SUCCESS != status) {
         return status;
