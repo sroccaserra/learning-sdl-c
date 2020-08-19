@@ -35,6 +35,6 @@ void update_player_view(PlayerView *player_view, const Player *player) {
     panel->y = player->y - size_y/2.;
 }
 
-int draw_player(SDL_Renderer *renderer, const PlayerView *player_view) {
+int draw_player_view(SDL_Renderer *renderer, const PlayerView *player_view) {
     return draw_panel(renderer, &player_view->panel);
 }

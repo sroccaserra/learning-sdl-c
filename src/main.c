@@ -151,7 +151,7 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
         SDL_RenderClear(context->renderer);
 
         update_player_view(&player_view, &player);
-        draw_player(context->renderer, &player_view);
+        draw_player_view(context->renderer, &player_view);
 
         SDL_SetRenderTarget(context->renderer, NULL);
         SDL_RenderCopy(context->renderer, context->low_res_screen, NULL, NULL);

@@ -11,6 +11,6 @@ typedef struct {
 
 void init_player_view(PlayerView *player_view, const Player *player, SDL_Texture *tileset);
 void update_player_view(PlayerView *player_view, const Player *player);
-int draw_player(SDL_Renderer *renderer, const PlayerView *player_view);
+int draw_player_view(SDL_Renderer *renderer, const PlayerView *player_view);
 
 #endif // _PLAYER_VIEW_H_
