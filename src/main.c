@@ -7,11 +7,6 @@
 #include "get_time_ms.h"
 #include "panel.h"
 
-static const double WALL_TEXTURE_X = 0;
-static const double WALL_TEXTURE_Y = 0;
-static const double WALL_TEXTURE_W = 16;
-static const double WALL_TEXTURE_H = 16;
-
 typedef struct {
     Uint32 nb_frames;
     double frame_average_ms;
@@ -100,11 +95,16 @@ WindowInitFailed:
 FrameStatistics game_loop(SDL_Renderer *renderer, SDL_Texture *low_res_screen, int w, int h, SDL_Texture *sprite_tiles) {
     const double loop_start_time_ms = get_time_ms();
 
+    static const double CHARACTER_TEXTURE_X = 0;
+    static const double CHARACTER_TEXTURE_Y = 0;
+    static const double CHARACTER_TEXTURE_W = 16;
+    static const double CHARACTER_TEXTURE_H = 16;
+
     const double zoom_factor = 3;
-    const double size_x = zoom_factor*WALL_TEXTURE_W;
-    const double size_y = zoom_factor*WALL_TEXTURE_H;
+    const double size_x = zoom_factor*CHARACTER_TEXTURE_W;
+    const double size_y = zoom_factor*CHARACTER_TEXTURE_H;
     Panel character_panel = {
-        {WALL_TEXTURE_X, WALL_TEXTURE_Y, WALL_TEXTURE_W, WALL_TEXTURE_H},
+        {CHARACTER_TEXTURE_X, CHARACTER_TEXTURE_Y, CHARACTER_TEXTURE_W, CHARACTER_TEXTURE_H},
         (w-size_x)/2, (h-size_y)/2,
         zoom_factor, zoom_factor,
         0, {size_x/2, size_y/2},
@@ -146,7 +146,7 @@ FrameStatistics game_loop(SDL_Renderer *renderer, SDL_Texture *low_res_screen, i
         }
 
         SDL_SetRenderTarget(renderer, low_res_screen);
-        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
+        SDL_SetRenderDrawColor(renderer, 0x39, 0x39, 0x39, 0x39);
         SDL_RenderClear(renderer);
         draw_panel(renderer, &character_panel);
 
