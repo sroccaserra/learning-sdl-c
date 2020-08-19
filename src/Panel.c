@@ -1,6 +1,6 @@
 #include "SDL.h"
 
-#include "panel.h"
+#include "Panel.h"
 
 int draw_panel(SDL_Renderer *renderer, Panel *panel) {
     SDL_Rect dst_rect;

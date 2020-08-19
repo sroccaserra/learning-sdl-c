@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -6,7 +7,7 @@
 
 #include "get_time_ms.h"
 #include "init.h"
-#include "panel.h"
+#include "Panel.h"
 #include "PresentationContext.h"
 
 ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context);
@@ -36,8 +37,6 @@ int main()
     return EXIT_SUCCESS;
 }
 
-
-
 ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) {
     if (STATUS_SUCCESS != previous) {
         return previous;
@@ -64,10 +63,10 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
     SDL_Event event;
     bool quit = false;
 
-    Uint32 nb_frames = 0;
+    uint32_t nb_frames = 0;
     Uint32 frame_start_ms, frame_end_ms;
-    Uint32 frame_measure_start = 100;
-    Uint32 nb_measured_frames = 5;
+    uint32_t frame_measure_start = 100;
+    int nb_measured_frames = 5;
     double frame_average_ms = 0;
 
     int kb_x_direction = 0;
@@ -122,7 +121,6 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
                     break;
             }
         }
-
 
         int x_direction = 0;
         int y_direction = 0;
