@@ -4,7 +4,6 @@
 
 #include "SDL.h"
 
-#include "game.h"
 #include "get_time_ms.h"
 #include "panel.h"
 
@@ -25,7 +24,6 @@ int main()
     Uint32 w = 320;
     Uint32 h = 240;
     Uint32 pixel_size = 3;
-    Uint32 pixels[w*h];
 
     SDL_Window *window = SDL_CreateWindow("SDL2",
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
@@ -49,14 +47,6 @@ int main()
         SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
     }
 
-    SDL_Texture *texture = SDL_CreateTexture(renderer,
-            SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC,
-            w, h);
-    if (NULL == texture) {
-        fprintf(stderr, "Erreur SDL_CreateRenderer : %s", SDL_GetError());
-        goto TextureCreationFailed;
-    }
-
     SDL_Texture *low_res_screen = SDL_CreateTexture(renderer,
             SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
             w, h);
@@ -75,17 +65,14 @@ int main()
 
     SDL_FreeSurface(tileset_surface);
 
-    World world;
-    init_world(&world, w, h);
-
-    Framebuffer fb;
-    init_framebuffer(&fb, w, h, &pixels);
-
-    Panel wall_panel = {
+    const double zoom_factor = 3;
+    const double size_x = zoom_factor*WALL_TEXTURE_W;
+    const double size_y = zoom_factor*WALL_TEXTURE_H;
+    Panel character_panel = {
         {WALL_TEXTURE_X, WALL_TEXTURE_Y, WALL_TEXTURE_W, WALL_TEXTURE_H},
-        (w-WALL_TEXTURE_W)/2, (h-WALL_TEXTURE_H)/2,
-        1, 1,
-        0, {WALL_TEXTURE_W/2, WALL_TEXTURE_H/2},
+        (w-size_x)/2, (h-size_y)/2,
+        zoom_factor, zoom_factor,
+        0, {size_x/2, size_y/2},
         tileset
     };
 
@@ -112,31 +99,25 @@ int main()
         if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
             frame_start_ms = SDL_GetTicks();
         }
-        update(&world);
 
-        wall_panel.x += 1;
-        if (wall_panel.x > w) {
-            wall_panel.x -= w;
+        character_panel.x += 1;
+        if (character_panel.x > w) {
+            character_panel.x -= w;
         }
-        wall_panel.alpha += 6*M_1_PI;
+        character_panel.alpha += 6*M_1_PI;
 
-        draw(&fb, &world);
         if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
             frame_end_ms = SDL_GetTicks();
             frame_average += (double)(frame_end_ms - frame_start_ms)/nb_measured_frames;
         }
 
-        int result = SDL_UpdateTexture(texture, NULL, fb.pixels, fb.w * sizeof(Uint32));
-        result += SDL_SetRenderTarget(renderer, low_res_screen);
-        result += SDL_RenderCopy(renderer, texture, NULL, NULL);
+        SDL_SetRenderTarget(renderer, low_res_screen);
+        SDL_SetRenderDrawColor(renderer, 0x00, 0x00, 0x00, 0x00);
+        SDL_RenderClear(renderer);
+        draw_panel(renderer, &character_panel);
 
-        result += draw_panel(renderer, &wall_panel);
-
-        result += SDL_SetRenderTarget(renderer, NULL);
-        result += SDL_RenderCopy(renderer, low_res_screen, NULL, NULL);
-        if (0 != result) {
-            goto Fail;
-        }
+        SDL_SetRenderTarget(renderer, NULL);
+        SDL_RenderCopy(renderer, low_res_screen, NULL, NULL);
 
         SDL_RenderPresent(renderer);
     }
@@ -150,8 +131,9 @@ int main()
     printf("Average frame computing time (ms): %f\n", frame_average);
 
     status = EXIT_SUCCESS;
-Fail:
-    SDL_DestroyTexture(texture);
+
+    SDL_DestroyTexture(low_res_screen);
+    SDL_DestroyTexture(tileset);
 TextureCreationFailed:
     SDL_DestroyRenderer(renderer);
 RendererInitFailed:
