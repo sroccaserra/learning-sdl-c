@@ -117,16 +117,20 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
         int input_x_direction = 0;
         int input_y_direction = 0;
 
-        if (kb_x_direction == 1 || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) {
+        if (kb_x_direction == 1 ||
+                1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) {
             input_x_direction = 1;
         }
-        if (kb_x_direction == -1 || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) {
+        if (kb_x_direction == -1 ||
+                1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) {
             input_x_direction = -1;
         }
-        if (kb_y_direction == -1 || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
+        if (kb_y_direction == -1 ||
+                1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
             input_y_direction = -1;
         }
-        if (kb_y_direction == 1 || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
+        if (kb_y_direction == 1 ||
+                1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
             input_y_direction = 1;
         }
 
