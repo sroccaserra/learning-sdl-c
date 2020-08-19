@@ -8,6 +8,7 @@
 #include "get_time_ms.h"
 #include "init.h"
 #include "Panel.h"
+#include "Player.h"
 #include "PresentationContext.h"
 
 ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context);
@@ -44,6 +45,9 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
 
     const double loop_start_time_ms = get_time_ms();
 
+    Player player;
+    init_player(&player, context->w/2., context->h/2.);
+
     const double CHARACTER_TEXTURE_X = 0;
     const double CHARACTER_TEXTURE_Y = 0;
     const double CHARACTER_TEXTURE_W = 16;
@@ -54,7 +58,7 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
     const double size_y = zoom_factor*CHARACTER_TEXTURE_H;
     Panel character_panel = {
         {CHARACTER_TEXTURE_X, CHARACTER_TEXTURE_Y, CHARACTER_TEXTURE_W, CHARACTER_TEXTURE_H},
-        (context->w-size_x)/2, (context->h-size_y)/2,
+        player.x - size_x/2., player.y - size_y/2.,
         zoom_factor, zoom_factor,
         0, {size_x/2, size_y/2},
         context->sprite_tiles
@@ -122,37 +126,39 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
             }
         }
 
-        int x_direction = 0;
-        int y_direction = 0;
+        int input_x_direction = 0;
+        int input_y_direction = 0;
 
         if (kb_x_direction == 1 || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) {
-            x_direction = 1;
+            input_x_direction = 1;
         }
         if (kb_x_direction == -1 || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) {
-            x_direction = -1;
+            input_x_direction = -1;
         }
         if (kb_y_direction == -1 || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
-            y_direction = -1;
+            input_y_direction = -1;
         }
         if (kb_y_direction == 1 || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
-            y_direction = 1;
+            input_y_direction = 1;
         }
 
-        character_panel.x += x_direction;
-        if (character_panel.x > context->w) {
-            character_panel.x -= context->w;
+        update_player(&player, input_x_direction, input_y_direction);
+
+        if (player.x > context->w) {
+            player.x -= context->w;
         }
-        if (character_panel.x < 0) {
-            character_panel.x += context->w;
+        if (player.x < 0) {
+            player.x += context->w;
+        }
+        if (player.y < 0) {
+            player.y += context->h;
+        }
+        if (player.y > context->h) {
+            player.y -= context->h;
         }
 
-        character_panel.y += y_direction;
-        if (character_panel.y < 0) {
-            character_panel.y += context->h;
-        }
-        if (character_panel.y > context->h) {
-            character_panel.y -= context->h;
-        }
+        character_panel.x = player.x-size_x/2.;
+        character_panel.y = player.y-size_y/2.;
 
         SDL_SetRenderTarget(context->renderer, context->low_res_screen);
         SDL_SetRenderDrawColor(context->renderer, 0x39, 0x39, 0x39, 0x39);

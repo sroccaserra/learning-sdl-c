@@ -3,12 +3,9 @@
 
 #include "SDL.h"
 
-#define WHITE 0xffffffff
+#include "Player.h"
 
-typedef struct {
-    float x;
-    float y;
-} Player;
+#define WHITE 0xffffffff
 
 typedef struct {
     Uint32 nb_ticks;
