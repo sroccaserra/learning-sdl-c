@@ -7,108 +7,142 @@
 #include "get_time_ms.h"
 #include "panel.h"
 
+#define STATUS_SUCCESS 0
+#define STATUS_ERROR -1
+
 typedef struct {
     Uint32 nb_frames;
     double frame_average_ms;
     double total_time_ms;
 } FrameStatistics;
 
-FrameStatistics game_loop(SDL_Renderer *renderer, SDL_Texture *low_res_screen, int w, int h, SDL_Texture *sprite_tiles);
+typedef struct {
+    int w;
+    int h;
+    int pixel_size;
+    bool is_full_screen;
+
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+    SDL_Texture *low_res_screen;
+    SDL_Texture *sprite_tiles;
+
+    FrameStatistics stats;
+} Context;
+
+int init_window_renderer_and_screen_texture(Context *context);
+int init_sprite_tiles(int error, Context *context);
+int run_game_loop(int error, Context *context);
+void print_stats(FrameStatistics stats);
+void clean_context(Context *context);
 
 int main()
 {
-    if(0 != SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
-        fprintf(stderr, "Erreur SDL_Init : %s\n", SDL_GetError());
-        return EXIT_FAILURE;
-    }
-
-    int status = EXIT_FAILURE;
-
-    Uint32 w = 320;
-    Uint32 h = 240;
-    Uint32 pixel_size = 3;
-
-    SDL_Window *window = SDL_CreateWindow("SDL2",
-            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-            w*pixel_size, h*pixel_size, SDL_WINDOW_SHOWN);
-    if(NULL == window)
-    {
-        fprintf(stderr, "Erreur SDL_CreateWindow : %s\n", SDL_GetError());
-        goto WindowInitFailed;
-    }
-
-    SDL_Renderer *renderer = SDL_CreateRenderer(window, -1,
-            SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if(NULL == renderer)
-    {
-        fprintf(stderr, "Erreur SDL_CreateRenderer : %s", SDL_GetError());
-        goto RendererInitFailed;
-    }
+    Context context;
+    context.w = 320;
+    context.h = 240;
+    context.pixel_size = 3;
 
     char *fullscreen_config = getenv("FULLSCREEN");
-    if (NULL != fullscreen_config && 0 == strcmp("true", fullscreen_config)) {
-        SDL_SetWindowFullscreen(window, SDL_WINDOW_FULLSCREEN);
+    context.is_full_screen = (NULL != fullscreen_config) && (0 == strcmp("true", fullscreen_config));
+
+    int status = init_window_renderer_and_screen_texture(&context);
+    status = init_sprite_tiles(status, &context);
+    status = run_game_loop(status, &context);
+
+    print_stats(context.stats);
+    clean_context(&context);
+
+    if (STATUS_SUCCESS != status) {
+        return status;
     }
 
-    SDL_Texture *low_res_screen = SDL_CreateTexture(renderer,
-            SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
-            w, h);
+    return EXIT_SUCCESS;
+}
 
-    SDL_Surface *sprite_tiles_surface = SDL_LoadBMP("assets/Sprite-0001.bmp");
+int init_window_renderer_and_screen_texture(Context *context) {
+    if(0 != SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
+        fprintf(stderr, "SDL_Init error: %s\n", SDL_GetError());
+        return STATUS_ERROR;
+    }
+
+    context->window = SDL_CreateWindow("SDL2",
+            SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+            context->w*context->pixel_size, context->h*context->pixel_size, SDL_WINDOW_SHOWN);
+    if(NULL == context->window)
+    {
+        fprintf(stderr, "SDL_CreateWindow error: %s\n", SDL_GetError());
+        return STATUS_ERROR;
+    }
+
+    if (context->is_full_screen) {
+        SDL_SetWindowFullscreen(context->window, SDL_WINDOW_FULLSCREEN);
+    }
+
+    context->renderer = SDL_CreateRenderer(context->window, -1,
+            SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if(NULL == context->renderer)
+    {
+        fprintf(stderr, "SDL_CreateRenderer error: %s\n", SDL_GetError());
+        return STATUS_ERROR;
+    }
+
+    context->low_res_screen = SDL_CreateTexture(context->renderer,
+            SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
+            context->w, context->h);
+    if(NULL == context->low_res_screen) {
+        fprintf(stderr, "SDL_CreateTexture error during low_res_screen init: %s\n", SDL_GetError());
+        return STATUS_ERROR;
+    }
+
+    return STATUS_SUCCESS;
+}
+
+int init_sprite_tiles(int error, Context *context) {
+    if (error) {
+        return error;
+    }
+
+    const char *file_name = "assets/Sprite-0001.bmp";
+    SDL_Surface *sprite_tiles_surface = SDL_LoadBMP(file_name);
     if (NULL == sprite_tiles_surface) {
-        fprintf(stderr, "Erreur loading bmp: %s", SDL_GetError());
-        goto TextureCreationFailed;
+        fprintf(stderr, "Error loading bmp file %s: %s\n", file_name, SDL_GetError());
+        return STATUS_ERROR;
     }
 
     Uint32 *pixels = sprite_tiles_surface->pixels;
     SDL_SetColorKey(sprite_tiles_surface, SDL_TRUE, *pixels);
 
-    SDL_Texture *sprite_tiles = SDL_CreateTextureFromSurface(renderer, sprite_tiles_surface);
-    if (NULL == sprite_tiles) {
-        fprintf(stderr, "Erreur loading bmp: %s", SDL_GetError());
-        goto TextureCreationFailed;
+    context->sprite_tiles = SDL_CreateTextureFromSurface(context->renderer, sprite_tiles_surface);
+    if (NULL == context->sprite_tiles) {
+        fprintf(stderr, "Error creating sprite tiles texture: %s\n", SDL_GetError());
+        return STATUS_ERROR;
     }
 
-    SDL_FreeSurface(sprite_tiles_surface);
-
-    const FrameStatistics stats = game_loop(renderer, low_res_screen, w, h, sprite_tiles);
-
-    printf("\nNb frames: %d\n", stats.nb_frames);
-    printf("Total time (ms): %f\n", stats.total_time_ms);
-    printf("Average FPS: %f\n", 1000.f*stats.nb_frames/stats.total_time_ms);
-    printf("Average frame computing time (ms): %f\n", stats.frame_average_ms);
-
-    status = EXIT_SUCCESS;
-
-    SDL_DestroyTexture(low_res_screen);
-    SDL_DestroyTexture(sprite_tiles);
-TextureCreationFailed:
-    SDL_DestroyRenderer(renderer);
-RendererInitFailed:
-    SDL_DestroyWindow(window);
-WindowInitFailed:
-    SDL_Quit();
-
-    return status;
+    return STATUS_SUCCESS;
 }
 
-FrameStatistics game_loop(SDL_Renderer *renderer, SDL_Texture *low_res_screen, int w, int h, SDL_Texture *sprite_tiles) {
+int run_game_loop(int error, Context *context) {
+    if (error) {
+        return error;
+    }
+
     const double loop_start_time_ms = get_time_ms();
 
-    static const double CHARACTER_TEXTURE_X = 0;
-    static const double CHARACTER_TEXTURE_Y = 0;
-    static const double CHARACTER_TEXTURE_W = 16;
-    static const double CHARACTER_TEXTURE_H = 16;
+    const double CHARACTER_TEXTURE_X = 0;
+    const double CHARACTER_TEXTURE_Y = 0;
+    const double CHARACTER_TEXTURE_W = 16;
+    const double CHARACTER_TEXTURE_H = 16;
 
     const double zoom_factor = 3;
     const double size_x = zoom_factor*CHARACTER_TEXTURE_W;
     const double size_y = zoom_factor*CHARACTER_TEXTURE_H;
     Panel character_panel = {
         {CHARACTER_TEXTURE_X, CHARACTER_TEXTURE_Y, CHARACTER_TEXTURE_W, CHARACTER_TEXTURE_H},
-        (w-size_x)/2, (h-size_y)/2,
+        (context->w-size_x)/2, (context->h-size_y)/2,
         zoom_factor, zoom_factor,
         0, {size_x/2, size_y/2},
-        sprite_tiles
+        context->sprite_tiles
     };
 
     SDL_Event event;
@@ -118,7 +152,7 @@ FrameStatistics game_loop(SDL_Renderer *renderer, SDL_Texture *low_res_screen, i
     Uint32 frame_start_ms, frame_end_ms;
     Uint32 frame_measure_start = 100;
     Uint32 nb_measured_frames = 5;
-    double frame_average = 0;
+    double frame_average_ms = 0;
 
     while (!quit) {
         while (SDL_PollEvent(&event)) {
@@ -135,33 +169,56 @@ FrameStatistics game_loop(SDL_Renderer *renderer, SDL_Texture *low_res_screen, i
         }
 
         character_panel.x += 1;
-        if (character_panel.x > w) {
-            character_panel.x -= w;
+        if (character_panel.x > context->w) {
+            character_panel.x -= context->w;
         }
         character_panel.alpha += 6*M_1_PI;
 
         if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
             frame_end_ms = SDL_GetTicks();
-            frame_average += (double)(frame_end_ms - frame_start_ms)/nb_measured_frames;
+            frame_average_ms += (double)(frame_end_ms - frame_start_ms)/nb_measured_frames;
         }
 
-        SDL_SetRenderTarget(renderer, low_res_screen);
-        SDL_SetRenderDrawColor(renderer, 0x39, 0x39, 0x39, 0x39);
-        SDL_RenderClear(renderer);
-        draw_panel(renderer, &character_panel);
+        SDL_SetRenderTarget(context->renderer, context->low_res_screen);
+        SDL_SetRenderDrawColor(context->renderer, 0x39, 0x39, 0x39, 0x39);
+        SDL_RenderClear(context->renderer);
+        draw_panel(context->renderer, &character_panel);
 
-        SDL_SetRenderTarget(renderer, NULL);
-        SDL_RenderCopy(renderer, low_res_screen, NULL, NULL);
+        SDL_SetRenderTarget(context->renderer, NULL);
+        SDL_RenderCopy(context->renderer, context->low_res_screen, NULL, NULL);
 
-        SDL_RenderPresent(renderer);
+        SDL_RenderPresent(context->renderer);
     }
 
     const double total_time_ms = get_time_ms() - loop_start_time_ms;
 
-    const FrameStatistics stats = {
-        nb_frames,
-        frame_average,
-        total_time_ms
-    };
-    return stats;
+    context->stats.nb_frames = nb_frames;
+    context->stats.frame_average_ms = frame_average_ms;
+    context->stats.total_time_ms = total_time_ms;
+
+    return STATUS_SUCCESS;
+}
+
+void print_stats(FrameStatistics stats) {
+    printf("\nNb frames: %d\n", stats.nb_frames);
+    printf("Total time (ms): %f\n", stats.total_time_ms);
+    printf("Average FPS: %f\n", 1000.f*stats.nb_frames/stats.total_time_ms);
+    printf("Average frame computing time (ms): %f\n", stats.frame_average_ms);
+}
+
+void clean_context(Context *context) {
+    if (NULL != context->sprite_tiles) {
+        SDL_DestroyTexture(context->sprite_tiles);
+    }
+    if (NULL != context->low_res_screen) {
+        SDL_DestroyTexture(context->low_res_screen);
+    }
+    if (NULL != context->renderer) {
+        SDL_DestroyRenderer(context->renderer);
+    }
+    if (NULL != context->window) {
+        SDL_DestroyWindow(context->window);
+    }
+
+    SDL_Quit();
 }
