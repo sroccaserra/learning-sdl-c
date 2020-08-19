@@ -7,8 +7,10 @@
 #include "get_time_ms.h"
 #include "panel.h"
 
-#define STATUS_SUCCESS 0
-#define STATUS_ERROR -1
+typedef enum {
+    STATUS_SUCCESS,
+    STATUS_ERROR
+} ReturnStatus;
 
 typedef struct {
     Uint32 nb_frames;
@@ -30,9 +32,9 @@ typedef struct {
     FrameStatistics stats;
 } Context;
 
-int init_window_renderer_and_screen_texture(Context *context);
-int init_sprite_tiles(int error, Context *context);
-int run_game_loop(int error, Context *context);
+ReturnStatus init_window_renderer_and_screen_texture(Context *context);
+ReturnStatus init_sprite_tiles(ReturnStatus previous, Context *context);
+ReturnStatus run_game_loop(ReturnStatus previous, Context *context);
 void print_stats(FrameStatistics stats);
 void clean_context(Context *context);
 
@@ -46,7 +48,7 @@ int main()
     char *fullscreen_config = getenv("FULLSCREEN");
     context.is_full_screen = (NULL != fullscreen_config) && (0 == strcmp("true", fullscreen_config));
 
-    int status = init_window_renderer_and_screen_texture(&context);
+    ReturnStatus status = init_window_renderer_and_screen_texture(&context);
     status = init_sprite_tiles(status, &context);
     status = run_game_loop(status, &context);
 
@@ -60,7 +62,7 @@ int main()
     return EXIT_SUCCESS;
 }
 
-int init_window_renderer_and_screen_texture(Context *context) {
+ReturnStatus init_window_renderer_and_screen_texture(Context *context) {
     if(0 != SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO)) {
         fprintf(stderr, "SDL_Init error: %s\n", SDL_GetError());
         return STATUS_ERROR;
@@ -98,9 +100,9 @@ int init_window_renderer_and_screen_texture(Context *context) {
     return STATUS_SUCCESS;
 }
 
-int init_sprite_tiles(int error, Context *context) {
-    if (error) {
-        return error;
+ReturnStatus init_sprite_tiles(ReturnStatus previous, Context *context) {
+    if (STATUS_SUCCESS != previous) {
+        return previous;
     }
 
     const char *file_name = "assets/Sprite-0001.bmp";
@@ -122,9 +124,9 @@ int init_sprite_tiles(int error, Context *context) {
     return STATUS_SUCCESS;
 }
 
-int run_game_loop(int error, Context *context) {
-    if (error) {
-        return error;
+ReturnStatus run_game_loop(ReturnStatus previous, Context *context) {
+    if (STATUS_SUCCESS != previous) {
+        return previous;
     }
 
     const double loop_start_time_ms = get_time_ms();
