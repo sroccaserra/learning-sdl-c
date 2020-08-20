@@ -6,7 +6,7 @@ static const double CHARACTER_TEXTURE_W = 16;
 static const double CHARACTER_TEXTURE_H = 16;
 
 void init_player_view(PlayerView *player_view, const Player *player, SDL_Texture *tileset) {
-    const double zoom_factor = 3;
+    const double zoom_factor = 1;
     const double size_x = zoom_factor*CHARACTER_TEXTURE_W;
     const double size_y = zoom_factor*CHARACTER_TEXTURE_H;
 

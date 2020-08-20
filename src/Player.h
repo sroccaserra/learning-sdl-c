@@ -4,6 +4,8 @@
 typedef struct {
     double x;
     double y;
+    double v_x;
+    double v_y;
 } Player;
 
 void init_player(Player *player, double x, double y);
