@@ -8,7 +8,7 @@ OBJ_FILES = $(C_FILES:.c=.o)
 EXEC_NAME = learning-sdl-c
 
 .PHONY: all
-all: CFLAGS += -O2 -ffast-math
+all: CFLAGS += -O2 -ffast-math -DNDEBUG
 all: $(EXEC_NAME)
 
 $(EXEC_NAME): $(OBJ_FILES) src/main.o
