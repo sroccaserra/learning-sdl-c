@@ -20,7 +20,6 @@ typedef struct {
 
     SDL_Window *window;
     SDL_Renderer *renderer;
-    SDL_Texture *low_res_screen;
     SDL_Texture *sprite_tiles;
 
     SDL_GameController *controller;

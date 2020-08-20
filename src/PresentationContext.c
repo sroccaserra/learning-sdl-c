@@ -10,7 +10,6 @@ void init_presentation_context(PresentationContext *context, int w, int h, int p
 
     context->window = NULL;
     context->renderer = NULL;
-    context->low_res_screen = NULL;
     context->sprite_tiles = NULL;
 
     context->controller = NULL;
@@ -22,9 +21,6 @@ void clean_presentation_context(PresentationContext *context) {
     }
     if (NULL != context->sprite_tiles) {
         SDL_DestroyTexture(context->sprite_tiles);
-    }
-    if (NULL != context->low_res_screen) {
-        SDL_DestroyTexture(context->low_res_screen);
     }
     if (NULL != context->renderer) {
         SDL_DestroyRenderer(context->renderer);

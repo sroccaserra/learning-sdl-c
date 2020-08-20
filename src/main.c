@@ -150,15 +150,11 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
         }
 
 
-        SDL_SetRenderTarget(context->renderer, context->low_res_screen);
         SDL_SetRenderDrawColor(context->renderer, 0x39, 0x39, 0x39, 0x39);
         SDL_RenderClear(context->renderer);
 
         update_player_view(&player_view, &player);
         draw_player_view(context->renderer, &player_view);
-
-        SDL_SetRenderTarget(context->renderer, NULL);
-        SDL_RenderCopy(context->renderer, context->low_res_screen, NULL, NULL);
 
         if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
             frame_end_ms = SDL_GetTicks();

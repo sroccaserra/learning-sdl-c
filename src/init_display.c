@@ -29,11 +29,8 @@ ReturnStatus init_window_renderer_and_screen_texture(PresentationContext *contex
         return STATUS_ERROR;
     }
 
-    context->low_res_screen = SDL_CreateTexture(context->renderer,
-            SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET,
-            context->w, context->h);
-    if(NULL == context->low_res_screen) {
-        fprintf(stderr, "SDL_CreateTexture error during low_res_screen init: %s\n", SDL_GetError());
+    if(0 != SDL_RenderSetLogicalSize(context->renderer, context->w, context->h)) {
+        fprintf(stderr, "SDL_RendererSetLogicalSize error: %s\n", SDL_GetError());
         return STATUS_ERROR;
     }
 
