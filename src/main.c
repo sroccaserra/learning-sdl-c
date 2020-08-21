@@ -29,13 +29,13 @@ int main()
 
     status = run_game_loop(status, &context);
 
-    print_stats(context.stats);
     clean_presentation_context(&context);
 
     if (STATUS_SUCCESS != status) {
-        return status;
+        return EXIT_FAILURE;
     }
 
+    print_stats(context.stats);
     return EXIT_SUCCESS;
 }
 
@@ -175,7 +175,7 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
 
 void print_stats(FrameStatistics stats) {
     printf("\nNb frames: %d\n", stats.nb_frames);
-    printf("Total time (ms): %f\n", stats.total_time_ms);
-    printf("Average FPS: %f\n", 1000.f*stats.nb_frames/stats.total_time_ms);
-    printf("Average frame computing time (ms): %f\n", stats.frame_average_ms);
+    printf("Total time (ms): %.0f\n", stats.total_time_ms);
+    printf("Average FPS: %.2f\n", 1000.f*stats.nb_frames/stats.total_time_ms);
+    printf("Average frame computing time (ms): %.3f\n", stats.frame_average_ms);
 }
