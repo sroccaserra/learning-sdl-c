@@ -67,7 +67,7 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
         nb_frames += 1;
 
         if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
-            frame_start_ms = SDL_GetTicks();
+            frame_start_ms = get_time_ms();
         }
 
         while (SDL_PollEvent(&event)) {
@@ -149,7 +149,6 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
             player.y -= context->h;
         }
 
-
         SDL_SetRenderDrawColor(context->renderer, 0x39, 0x39, 0x39, 0x39);
         SDL_RenderClear(context->renderer);
 
@@ -157,7 +156,7 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
         draw_player_view(context->renderer, &player_view);
 
         if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
-            frame_end_ms = SDL_GetTicks();
+            frame_end_ms = get_time_ms();
             frame_average_ms += (double)(frame_end_ms - frame_start_ms)/nb_measured_frames;
         }
 
