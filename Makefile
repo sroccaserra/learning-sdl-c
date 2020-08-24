@@ -1,5 +1,5 @@
 CC = clang
-CFLAGS = -std=c99 -Wall -Wextra -Wpedantic -Werror -Iinclude $(shell sdl2-config --cflags)
+CFLAGS = -std=c18 -Wall -Wextra -Wpedantic -Werror -Iinclude $(shell sdl2-config --cflags)
 LDFLAGS = $(shell sdl2-config --libs)
 
 C_FILES = $(filter-out src/main.c, $(wildcard src/*.c))
