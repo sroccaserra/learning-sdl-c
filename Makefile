@@ -1,4 +1,6 @@
 CC = clang
+LD = clang
+SANITIZE= -fsanitize=address,undefined,nullability
 CFLAGS = -std=c18 -Wall -Wextra -Wpedantic -Werror -Iinclude $(shell sdl2-config --cflags)
 LDFLAGS = $(shell sdl2-config --libs)
 
@@ -19,7 +21,8 @@ run: $(EXEC_NAME)
 	./$(EXEC_NAME)
 
 .PHONY: debug
-debug: CFLAGS += -O0 -DDEBUG -g
+debug: CFLAGS += -O0 -DDEBUG -g -fno-omit-frame-pointer $(SANITIZE)
+debug: LDFLAGS += $(SANITIZE)
 debug: $(EXEC_NAME)
 	@echo "To debug on macOs, use:"
 	@echo "$$ lldb $(EXEC_NAME)"
