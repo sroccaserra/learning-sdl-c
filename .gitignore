@@ -1,3 +1,5 @@
 learning-sdl-c
 scripts/poly_sin_cos_perf
+scripts/sound
 *.o
+*.dSYM

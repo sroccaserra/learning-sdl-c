@@ -42,3 +42,11 @@ clean:
 	rm -f $(OBJ_FILES) src/main.o
 	rm -f $(EXEC_NAME)
 	rm -f scripts/poly_sin_cos_perf
+	rm -f scripts/sound
+
+scripts/sound: scripts/sound.c
+	$(CC) $(CFLAGS) $(LDFLAGS) $(SANITIZE) -g -fno-omit-frame-pointer -o scripts/sound scripts/sound.c
+
+.PHONY: sound
+sound: scripts/sound
+	scripts/sound
