@@ -5,7 +5,7 @@
 
 #include "SDL.h"
 
-#define SAMPLE_RATE 22050.
+#define SAMPLE_RATE 44100.
 #define NB_CHANNELS 2
 
 typedef struct {
@@ -42,7 +42,8 @@ void audio_callback(void* userdata, Uint8* stream, int len) {
     };
     static int start_frame = 0;
 
-    const int nb_frames = len/NB_CHANNELS;
+    const int nb_frames = len/(NB_CHANNELS*sizeof(int16_t));
+    int16_t * wstream = (int16_t *)(stream);
 
     for (int i = 0; i < nb_frames; ++i) {
         const double t = (start_frame + i)/SAMPLE_RATE;
@@ -54,11 +55,11 @@ void audio_callback(void* userdata, Uint8* stream, int len) {
             : 0;
 
         const double x = apply_envelope(&envelope, t, 0.1*saw + 0.4*sine + 0.2*pulse);
-        const int8_t value = INT8_MAX*x;
-        assert(INT8_MIN <= value && value <= INT8_MAX);
+        const int16_t value = INT16_MAX*x;
+        assert(INT16_MIN <= value && value <= INT16_MAX);
 
         for (int j = 0; j < NB_CHANNELS; ++j) {
-            stream[NB_CHANNELS*i + j] = value;
+            wstream[NB_CHANNELS*i + j] = value;
         }
     }
 
@@ -76,7 +77,7 @@ int main() {
 
     SDL_memset(&want, 0, sizeof(want));
     want.freq = SAMPLE_RATE;
-    want.format = AUDIO_S8;
+    want.format = AUDIO_S16SYS;
     want.channels = NB_CHANNELS;
     want.samples = 64;
     want.callback = audio_callback;
