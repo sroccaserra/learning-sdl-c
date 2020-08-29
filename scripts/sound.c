@@ -33,12 +33,12 @@ double apply_envelope(const Envelope *envelope, double t, double value) {
 
 void audio_callback(void* userdata, Uint8* stream, int len) {
     (void)userdata; // unused variable
-    static const double SINE_FREQ = 440.;
-    static const double SAW_FREQ = 3*SINE_FREQ/4.;
-    static const double PULSE_FREQ = 5*SINE_FREQ/8.;
+    static const double SINE_FREQ = 220.;
+    static const double SAW_FREQ = 1.001*3*220;
+    static const double PULSE_FREQ = 0.999*5*55.;
     static const Envelope envelope = {
         .attack = 0.01,
-        .release = 0.5,
+        .release = 0.8,
     };
     static int start_frame = 0;
 
@@ -54,7 +54,7 @@ void audio_callback(void* userdata, Uint8* stream, int len) {
             ? 1
             : 0;
 
-        const double x = apply_envelope(&envelope, t, 0.1*saw + 0.4*sine + 0.2*pulse);
+        const double x = apply_envelope(&envelope, t, 0.05*saw + 0.2*sine + 0.04*pulse);
         const int16_t value = INT16_MAX*x;
         assert(INT16_MIN <= value && value <= INT16_MAX);
 
