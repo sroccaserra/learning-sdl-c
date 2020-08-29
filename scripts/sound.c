@@ -6,17 +6,21 @@
 #define SAMPLE_RATE 44100.
 #define NB_CHANNELS 2
 
-#define NOTE_FREQ 440.
-
 void audio_callback(void* userdata, Uint8* stream, int len) {
     (void)userdata; // unused variable
+    static const double SINE_FREQ = 440.;
+    static const double SAW_FREQ = SINE_FREQ/8.;
     static int start_frame = 0;
 
     const int nb_frames = len/NB_CHANNELS;
 
     for (int i = 0; i < nb_frames; ++i) {
-        const int t = start_frame + i;
-        const int value = 127*sin(t*2*M_PI*NOTE_FREQ/SAMPLE_RATE);
+        const double t = (start_frame + i)/SAMPLE_RATE;
+
+        const double sine = sin(t*2*M_PI*SINE_FREQ);
+        const double saw = 2*SAW_FREQ*fmod(t, 1/SAW_FREQ) - 1;
+
+        const int value = 30*saw + 60*sine;
 
         for (int j = 0; j < NB_CHANNELS; ++j) {
             stream[NB_CHANNELS*i + j] = value;
