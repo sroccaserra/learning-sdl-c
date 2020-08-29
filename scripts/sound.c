@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #include <math.h>
 
@@ -12,6 +13,8 @@ typedef struct {
 } Envelope;
 
 double apply_envelope(const Envelope *envelope, double t, double value) {
+    assert(0 <= t);
+
     if (0 < envelope->attack && t <= envelope->attack) {
         return value*t/envelope->attack;
     }
@@ -51,6 +54,7 @@ void audio_callback(void* userdata, Uint8* stream, int len) {
 
         const double x = apply_envelope(&envelope, t, 0.1*saw + 0.4*sine + 0.2*pulse);
         const int value = 127*x;
+        assert(-128 <= value && value <= 127);
 
         for (int j = 0; j < NB_CHANNELS; ++j) {
             stream[NB_CHANNELS*i + j] = value;
