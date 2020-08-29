@@ -6,11 +6,36 @@
 #define SAMPLE_RATE 44100.
 #define NB_CHANNELS 2
 
+typedef struct {
+    double attack;
+    double release;
+} Envelope;
+
+double apply_envelope(const Envelope *envelope, double t, double value) {
+    if (0 < envelope->attack && t <= envelope->attack) {
+        return value*t/envelope->attack;
+    }
+
+    const double duration = envelope->attack + envelope->release;
+
+    if (0 == envelope->release || duration <= t) {
+        return 0;
+    }
+
+    const double k = 1 + (envelope->attack-t)/envelope->release;
+
+    return value*k;
+}
+
 void audio_callback(void* userdata, Uint8* stream, int len) {
     (void)userdata; // unused variable
     static const double SINE_FREQ = 440.;
     static const double SAW_FREQ = 3*SINE_FREQ/4.;
     static const double PULSE_FREQ = 5*SINE_FREQ/8.;
+    static const Envelope envelope = {
+        .attack = 0.02,
+        .release = 0.5,
+    };
     static int start_frame = 0;
 
     const int nb_frames = len/NB_CHANNELS;
@@ -24,7 +49,8 @@ void audio_callback(void* userdata, Uint8* stream, int len) {
             ? 1
             : 0;
 
-        const int value = 10*saw + 10*sine + 10*pulse;
+        const double x = apply_envelope(&envelope, t, 0.1*saw + 0.4*sine + 0.2*pulse);
+        const int value = 127*x;
 
         for (int j = 0; j < NB_CHANNELS; ++j) {
             stream[NB_CHANNELS*i + j] = value;
