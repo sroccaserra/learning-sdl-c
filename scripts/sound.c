@@ -9,7 +9,8 @@
 void audio_callback(void* userdata, Uint8* stream, int len) {
     (void)userdata; // unused variable
     static const double SINE_FREQ = 440.;
-    static const double SAW_FREQ = SINE_FREQ/8.;
+    static const double SAW_FREQ = 3*SINE_FREQ/4.;
+    static const double PULSE_FREQ = 5*SINE_FREQ/8.;
     static int start_frame = 0;
 
     const int nb_frames = len/NB_CHANNELS;
@@ -19,8 +20,11 @@ void audio_callback(void* userdata, Uint8* stream, int len) {
 
         const double sine = sin(t*2*M_PI*SINE_FREQ);
         const double saw = 2*SAW_FREQ*fmod(t, 1/SAW_FREQ) - 1;
+        const double pulse = fmod(t, 1/PULSE_FREQ) > .25/PULSE_FREQ
+            ? 1
+            : 0;
 
-        const int value = 30*saw + 60*sine;
+        const int value = 10*saw + 10*sine + 10*pulse;
 
         for (int j = 0; j < NB_CHANNELS; ++j) {
             stream[NB_CHANNELS*i + j] = value;
