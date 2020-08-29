@@ -1,10 +1,11 @@
 #include <assert.h>
-#include <stdio.h>
 #include <math.h>
+#include <stdint.h>
+#include <stdio.h>
 
 #include "SDL.h"
 
-#define SAMPLE_RATE 44100.
+#define SAMPLE_RATE 22050.
 #define NB_CHANNELS 2
 
 typedef struct {
@@ -36,7 +37,7 @@ void audio_callback(void* userdata, Uint8* stream, int len) {
     static const double SAW_FREQ = 3*SINE_FREQ/4.;
     static const double PULSE_FREQ = 5*SINE_FREQ/8.;
     static const Envelope envelope = {
-        .attack = 0.02,
+        .attack = 0.01,
         .release = 0.5,
     };
     static int start_frame = 0;
@@ -53,8 +54,8 @@ void audio_callback(void* userdata, Uint8* stream, int len) {
             : 0;
 
         const double x = apply_envelope(&envelope, t, 0.1*saw + 0.4*sine + 0.2*pulse);
-        const int value = 127*x;
-        assert(-128 <= value && value <= 127);
+        const int8_t value = INT8_MAX*x;
+        assert(INT8_MIN <= value && value <= INT8_MAX);
 
         for (int j = 0; j < NB_CHANNELS; ++j) {
             stream[NB_CHANNELS*i + j] = value;
