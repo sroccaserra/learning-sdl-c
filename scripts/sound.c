@@ -7,6 +7,16 @@
 
 #define SAMPLE_RATE 44100.
 #define NB_CHANNELS 2
+typedef int16_t T;
+static const uint8_t BIT_DEPTH = 8*sizeof(T);
+
+static T min_value() {
+    return -pow(2, BIT_DEPTH-1);
+}
+
+static T max_value() {
+    return pow(2, BIT_DEPTH-1)-1;
+}
 
 typedef struct {
     double attack;
@@ -31,10 +41,10 @@ double apply_envelope(const Envelope *envelope, double t, double value) {
     return value*k;
 }
 
-void audio_callback(void* userdata, Uint8* stream, int len) {
+void audio_callback(void* userdata, Uint8* byte_stream, int len) {
     (void)userdata; // unused variable
     static const double SINE_FREQ = 220.;
-    static const double SAW_FREQ = 1.001*3*220;
+    static const double SAW_FREQ = 1.001*3*220.;
     static const double PULSE_FREQ = 0.999*5*55.;
     static const Envelope envelope = {
         .attack = 0.01,
@@ -42,24 +52,23 @@ void audio_callback(void* userdata, Uint8* stream, int len) {
     };
     static int start_frame = 0;
 
-    const int nb_frames = len/(NB_CHANNELS*sizeof(int16_t));
-    int16_t * wstream = (int16_t *)(stream);
+    const int nb_frames = len/(NB_CHANNELS*sizeof(T));
+    T *stream = (T *)byte_stream;
 
     for (int i = 0; i < nb_frames; ++i) {
         const double t = (start_frame + i)/SAMPLE_RATE;
 
         const double sine = sin(t*2*M_PI*SINE_FREQ);
         const double saw = 2*SAW_FREQ*fmod(t, 1/SAW_FREQ) - 1;
-        const double pulse = fmod(t, 1/PULSE_FREQ) > .25/PULSE_FREQ
-            ? 1
-            : 0;
+        const double pulse = (fmod(t, 1/PULSE_FREQ) > .25/PULSE_FREQ) ? 1 : 0;
 
         const double x = apply_envelope(&envelope, t, 0.05*saw + 0.2*sine + 0.04*pulse);
-        const int16_t value = INT16_MAX*x;
-        assert(INT16_MIN <= value && value <= INT16_MAX);
+
+        const T value = max_value()*x;
+        assert(min_value() <= value && value <= max_value());
 
         for (int j = 0; j < NB_CHANNELS; ++j) {
-            wstream[NB_CHANNELS*i + j] = value;
+            stream[NB_CHANNELS*i + j] = value;
         }
     }
 
@@ -77,7 +86,7 @@ int main() {
 
     SDL_memset(&want, 0, sizeof(want));
     want.freq = SAMPLE_RATE;
-    want.format = AUDIO_S16SYS;
+    want.format = (8 == BIT_DEPTH) ? AUDIO_S8 : AUDIO_S16SYS;
     want.channels = NB_CHANNELS;
     want.samples = 64;
     want.callback = audio_callback;
