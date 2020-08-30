@@ -23,7 +23,7 @@ typedef struct {
     double release;
 } Envelope;
 
-double apply_envelope(const Envelope *envelope, double t, double value);
+double apply_envelope(const Envelope *envelope, const double t, const double value);
 
 int main() {
     if(0 != SDL_Init(SDL_INIT_AUDIO)) {
@@ -114,7 +114,7 @@ double pulse_wave(const double frequency, const double pulse_width, const double
     return (fmod(t, 1/frequency) > pulse_width/frequency) ? 1 : 0;
 }
 
-double apply_envelope(const Envelope *envelope, double t, double value) {
+double apply_envelope(const Envelope *envelope, const double t, const double value) {
     assert(0 <= t);
 
     if (0 < envelope->attack && t <= envelope->attack) {
