@@ -1,8 +1,12 @@
 CC = clang
 LD = clang
 SANITIZE= -fsanitize=address,undefined,nullability
+
 CFLAGS = -std=c18 -Wall -Wextra -Wpedantic -Werror -Iinclude $(shell sdl2-config --cflags)
+CDEBUGFLAGS = -O0 -DDEBUG -g -fno-omit-frame-pointer $(SANITIZE)
+
 LDFLAGS = $(shell sdl2-config --libs)
+LDDEBUGFLAGS = $(SANITIZE)
 
 C_FILES = $(filter-out src/main.c, $(wildcard src/*.c))
 OBJ_FILES = $(C_FILES:.c=.o)
@@ -21,8 +25,8 @@ run: $(EXEC_NAME)
 	./$(EXEC_NAME)
 
 .PHONY: debug
-debug: CFLAGS += -O0 -DDEBUG -g -fno-omit-frame-pointer $(SANITIZE)
-debug: LDFLAGS += $(SANITIZE)
+debug: CFLAGS += $(CDEBUGFLAGS)
+debug: LDFLAGS += $(LDDEBUGFLAGS)
 debug: $(EXEC_NAME)
 	@echo "To debug on macOs, use:"
 	@echo "$$ lldb $(EXEC_NAME)"
@@ -43,9 +47,10 @@ clean:
 	rm -f $(EXEC_NAME)
 	rm -f scripts/poly_sin_cos_perf
 	rm -f scripts/sound
+	rm -rf scripts/*.dSYM
 
 scripts/sound: scripts/sound.c
-	$(CC) $(CFLAGS) $(LDFLAGS) $(SANITIZE) -g -fno-omit-frame-pointer -o scripts/sound scripts/sound.c
+	$(CC) $(CFLAGS) $(CDEBUGFLAGS) $(LDFLAGS) -o scripts/sound scripts/sound.c
 
 .PHONY: sound
 sound: scripts/sound
