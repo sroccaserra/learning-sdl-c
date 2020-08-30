@@ -107,11 +107,13 @@ double sine_wave(const double frequency, const double t) {
 }
 
 double saw_wave(const double frequency, const double t) {
-    return 2*frequency*fmod(t, 1/frequency) - 1;
+    const double period = 1/frequency;
+    return 2*frequency*fmod(t, period) - 1;
 }
 
 double pulse_wave(const double frequency, const double pulse_width, const double t) {
-    return (fmod(t, 1/frequency) > pulse_width/frequency) ? 1 : 0;
+    const double period = 1/frequency;
+    return (fmod(t, period) > period*pulse_width) ? 1 : 0;
 }
 
 double apply_envelope(const Envelope *envelope, const double t, const double value) {
