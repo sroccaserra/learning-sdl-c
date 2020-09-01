@@ -61,8 +61,11 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
     int nb_measured_frames = 5;
     double frame_average_ms = 0;
 
-    int kb_x_direction = 0;
-    int kb_y_direction = 0;
+    int kb_left = 0;
+    int kb_right = 0;
+    int kb_up = 0;
+    int kb_down = 0;
+
     while (!quit) {
         nb_frames += 1;
 
@@ -78,41 +81,44 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
                 case SDL_KEYDOWN:
                     switch (event.key.keysym.sym) {
                         case SDLK_LEFT:
-                            kb_x_direction = -1;
+                            kb_left = -1;
                             break;
                         case SDLK_RIGHT:
-                            kb_x_direction = 1;
+                            kb_right = 1;
                             break;
                         case SDLK_UP:
-                            kb_y_direction = -1;
+                            kb_up = -1;
                             break;
                         case SDLK_DOWN:
-                            kb_y_direction = 1;
+                            kb_down = 1;
                             break;
                     }
                     break;
                 case SDL_KEYUP:
                     switch (event.key.keysym.sym) {
                         case SDLK_LEFT:
-                            if (kb_x_direction < 0)
-                                kb_x_direction = 0;
+                            if (kb_left < 0)
+                                kb_left = 0;
                             break;
                         case SDLK_RIGHT:
-                            if (kb_x_direction > 0)
-                                kb_x_direction = 0;
+                            if (kb_right > 0)
+                                kb_right = 0;
                             break;
                         case SDLK_UP:
-                            if (kb_y_direction < 0)
-                                kb_y_direction = 0;
+                            if (kb_up < 0)
+                                kb_up = 0;
                             break;
                         case SDLK_DOWN:
-                            if (kb_y_direction > 0)
-                                kb_y_direction = 0;
+                            if (kb_down > 0)
+                                kb_down = 0;
                             break;
                     }
                     break;
             }
         }
+
+        int kb_x_direction = kb_left + kb_right;
+        int kb_y_direction = kb_up + kb_down;
 
         int input_x_direction = 0;
         int input_y_direction = 0;
