@@ -7,7 +7,7 @@ void init_player(Player *player, double x, double y) {
     player->v_y = 0;
 }
 
-void update_player(Player *player, int8_t input_x_direction, int8_t input_y_direction) {
+void update_player(Player *player, int8_t input_x_direction, bool input_jump) {
     player->v_x = 2*input_x_direction;
 
     if (player->y < 200) {
@@ -18,7 +18,7 @@ void update_player(Player *player, int8_t input_x_direction, int8_t input_y_dire
         player->y = 200;
     }
 
-    if (input_y_direction < 0 && player->y == 200) {
+    if (input_jump && player->y == 200) {
         player->v_y = -10;
     }
 

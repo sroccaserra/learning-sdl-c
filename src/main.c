@@ -63,8 +63,7 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
 
     int8_t kb_left = 0;
     int8_t kb_right = 0;
-    int8_t kb_up = 0;
-    int8_t kb_down = 0;
+    bool kb_a_button = false;
 
     while (!quit) {
         nb_frames += 1;
@@ -86,11 +85,8 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
                         case SDLK_RIGHT:
                             kb_right = 1;
                             break;
-                        case SDLK_UP:
-                            kb_up = -1;
-                            break;
-                        case SDLK_DOWN:
-                            kb_down = 1;
+                        case SDLK_c:
+                            kb_a_button = true;
                             break;
                     }
                     break;
@@ -104,13 +100,8 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
                             if (kb_right > 0)
                                 kb_right = 0;
                             break;
-                        case SDLK_UP:
-                            if (kb_up < 0)
-                                kb_up = 0;
-                            break;
-                        case SDLK_DOWN:
-                            if (kb_down > 0)
-                                kb_down = 0;
+                        case SDLK_c:
+                            kb_a_button = false;
                             break;
                     }
                     break;
@@ -118,10 +109,8 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
         }
 
         int8_t kb_x_direction = kb_left + kb_right;
-        int8_t kb_y_direction = kb_up + kb_down;
 
         int8_t input_x_direction = 0;
-        int8_t input_y_direction = 0;
 
         if (kb_x_direction == 1 ||
                 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) {
@@ -131,16 +120,13 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
                 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) {
             input_x_direction = -1;
         }
-        if (kb_y_direction == -1 ||
-                1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_UP)) {
-            input_y_direction = -1;
-        }
-        if (kb_y_direction == 1 ||
-                1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_DOWN)) {
-            input_y_direction = 1;
+
+        int8_t input_jump = false;
+        if (kb_a_button || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_A)) {
+            input_jump = true;
         }
 
-        update_player(&player, input_x_direction, input_y_direction);
+        update_player(&player, input_x_direction, input_jump);
 
         if (player.x > context->w) {
             player.x -= context->w;
