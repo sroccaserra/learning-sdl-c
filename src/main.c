@@ -61,10 +61,10 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
     int nb_measured_frames = 5;
     double frame_average_ms = 0;
 
-    int kb_left = 0;
-    int kb_right = 0;
-    int kb_up = 0;
-    int kb_down = 0;
+    int8_t kb_left = 0;
+    int8_t kb_right = 0;
+    int8_t kb_up = 0;
+    int8_t kb_down = 0;
 
     while (!quit) {
         nb_frames += 1;
@@ -117,11 +117,11 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
             }
         }
 
-        int kb_x_direction = kb_left + kb_right;
-        int kb_y_direction = kb_up + kb_down;
+        int8_t kb_x_direction = kb_left + kb_right;
+        int8_t kb_y_direction = kb_up + kb_down;
 
-        int input_x_direction = 0;
-        int input_y_direction = 0;
+        int8_t input_x_direction = 0;
+        int8_t input_y_direction = 0;
 
         if (kb_x_direction == 1 ||
                 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) {
