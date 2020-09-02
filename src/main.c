@@ -12,6 +12,7 @@
 #include "presentation/PlayerView.h"
 #include "presentation/PresentationContext.h"
 #include "presentation/init_display.h"
+#include "presentation/input.h"
 
 #include "get_time_ms.h"
 
@@ -96,12 +97,10 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
                 case SDL_KEYUP:
                     switch (event.key.keysym.sym) {
                         case SDLK_LEFT:
-                            if (kb_left < 0)
-                                kb_left = 0;
+                            kb_left = 0;
                             break;
                         case SDLK_RIGHT:
-                            if (kb_right > 0)
-                                kb_right = 0;
+                            kb_right = 0;
                             break;
                         case SDLK_c:
                             kb_a_button = false;
@@ -111,28 +110,8 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
             }
         }
 
-        int8_t kb_x_direction = kb_left + kb_right;
-
-        int8_t input_x_direction = 0;
-
-        if (kb_x_direction == 1 ||
-                1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_RIGHT)) {
-            input_x_direction = 1;
-        }
-        if (kb_x_direction == -1 ||
-                1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_DPAD_LEFT)) {
-            input_x_direction = -1;
-        }
-
-        int8_t input_jump = false;
-        if (kb_a_button || 1 == SDL_GameControllerGetButton(context->controller, SDL_CONTROLLER_BUTTON_A)) {
-            input_jump = true;
-        }
-
-        const Input input = {
-            .x_direction = input_x_direction,
-            .is_jumping = input_jump,
-        };
+        Input input;
+        read_input(&input, kb_left, kb_right, kb_a_button, context->controller);
 
         update_player(&player, &input);
 
