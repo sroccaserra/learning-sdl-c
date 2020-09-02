@@ -1,12 +1,10 @@
 #include <math.h>
 #include <stdint.h>
 
-#include "SDL.h"
-
 #include "poly_sin_cos.h"
 #include "plasma.h"
 
-void draw_plasma(Uint32 (*pixels)[], Uint32 w, Uint32 h, double t) {
+void draw_plasma(uint32_t (*pixels)[], uint32_t w, uint32_t h, double t) {
     for (uint32_t y = 0; y < h; ++y) {
         const int32_t y_offset = y*w;
         double ry = (double)y/h - 0.5;

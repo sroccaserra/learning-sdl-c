@@ -1,8 +1,9 @@
 #include <math.h>
 #include <stdio.h>
 
+#include "../src/domain/poly_sin_cos.h"
+
 #include "../src/get_time_ms.h"
-#include "../src/poly_sin_cos.h"
 
 volatile double s, a;
 
