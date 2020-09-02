@@ -3,7 +3,7 @@
 
 #include "../src/domain/poly_sin_cos.h"
 
-#include "../src/get_time_ms.h"
+#include "../src/infrastructure/get_time_ms.h"
 
 volatile double s, a;
 

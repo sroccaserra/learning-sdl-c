@@ -14,7 +14,7 @@
 #include "presentation/init_display.h"
 #include "presentation/input.h"
 
-#include "get_time_ms.h"
+#include "infrastructure/get_time_ms.h"
 
 ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context);
 void print_stats(FrameStatistics stats);
