@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#include "Input.h"
+
 typedef struct {
     double x;
     double y;
@@ -11,7 +13,7 @@ typedef struct {
     double v_y;
 } Player;
 
-void init_player(Player *player, double x, double y);
-void update_player(Player *player, int8_t input_x_direction, bool input_jump);
+void init_player(Player *player, const double x, const double y);
+void update_player(Player *player,const Input *input);
 
 #endif // _PLAYER_H_

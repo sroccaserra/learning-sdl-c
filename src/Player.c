@@ -1,14 +1,14 @@
 #include "Player.h"
 
-void init_player(Player *player, double x, double y) {
+void init_player(Player *player, const double x, const double y) {
     player->x = x;
     player->y = y;
     player->v_x = 0;
     player->v_y = 0;
 }
 
-void update_player(Player *player, int8_t input_x_direction, bool input_jump) {
-    player->v_x = 2*input_x_direction;
+void update_player(Player *player, const Input *input) {
+    player->v_x = 2*input->x_direction;
 
     if (player->y < 200) {
         player->v_y += 0.5;
@@ -18,7 +18,7 @@ void update_player(Player *player, int8_t input_x_direction, bool input_jump) {
         player->y = 200;
     }
 
-    if (input_jump && player->y == 200) {
+    if (input->is_jumping && player->y == 200) {
         player->v_y = -10;
     }
 

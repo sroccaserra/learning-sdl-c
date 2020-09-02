@@ -7,6 +7,7 @@
 
 #include "get_time_ms.h"
 #include "init_display.h"
+#include "Input.h"
 #include "Panel.h"
 #include "Player.h"
 #include "PlayerView.h"
@@ -126,7 +127,12 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
             input_jump = true;
         }
 
-        update_player(&player, input_x_direction, input_jump);
+        const Input input = {
+            .x_direction = input_x_direction,
+            .is_jumping = input_jump,
+        };
+
+        update_player(&player, &input);
 
         if (player.x > context->w) {
             player.x -= context->w;
