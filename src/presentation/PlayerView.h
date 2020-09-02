@@ -1,8 +1,9 @@
 #ifndef _PLAYER_VIEW_H_
 #define _PLAYER_VIEW_H_
 
+#include "../domain/Player.h"
+
 #include "Panel.h"
-#include "domain/Player.h"
 
 typedef struct {
     Player *player;

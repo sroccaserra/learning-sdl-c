@@ -8,11 +8,12 @@
 #include "domain/Input.h"
 #include "domain/Player.h"
 
-#include "Panel.h"
-#include "PlayerView.h"
-#include "PresentationContext.h"
+#include "presentation/Panel.h"
+#include "presentation/PlayerView.h"
+#include "presentation/PresentationContext.h"
+#include "presentation/init_display.h"
+
 #include "get_time_ms.h"
-#include "init_display.h"
 
 ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context);
 void print_stats(FrameStatistics stats);
