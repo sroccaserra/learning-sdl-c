@@ -8,7 +8,7 @@ CDEBUGFLAGS = -O0 -DDEBUG -g -fno-omit-frame-pointer $(SANITIZE)
 LDFLAGS = $(shell sdl2-config --libs)
 LDDEBUGFLAGS = $(SANITIZE)
 
-C_FILES = $(filter-out src/main.c, $(wildcard src/*.c))
+C_FILES = $(filter-out src/main.c, $(shell find src -type f -name '*.c'))
 OBJ_FILES = $(C_FILES:.c=.o)
 
 EXEC_NAME = learning-sdl-c

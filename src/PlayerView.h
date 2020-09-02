@@ -2,7 +2,7 @@
 #define _PLAYER_VIEW_H_
 
 #include "Panel.h"
-#include "Player.h"
+#include "domain/Player.h"
 
 typedef struct {
     Player *player;

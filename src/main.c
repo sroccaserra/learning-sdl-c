@@ -5,13 +5,14 @@
 
 #include "SDL.h"
 
-#include "get_time_ms.h"
-#include "init_display.h"
-#include "Input.h"
+#include "domain/Input.h"
+#include "domain/Player.h"
+
 #include "Panel.h"
-#include "Player.h"
 #include "PlayerView.h"
 #include "PresentationContext.h"
+#include "get_time_ms.h"
+#include "init_display.h"
 
 ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context);
 void print_stats(FrameStatistics stats);
