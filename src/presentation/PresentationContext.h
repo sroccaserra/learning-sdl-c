@@ -7,12 +7,6 @@
 #include "SDL.h"
 
 typedef struct {
-    uint32_t nb_frames;
-    double frame_average_ms;
-    double total_time_ms;
-} FrameStatistics;
-
-typedef struct {
     int w;
     int h;
     int pixel_size;
@@ -24,7 +18,6 @@ typedef struct {
 
     SDL_GameController *controller;
 
-    FrameStatistics stats;
 } PresentationContext;
 
 void init_presentation_context(PresentationContext *context, int w, int h, int pixel_size);

@@ -17,7 +17,6 @@
 #include "infrastructure/get_time_ms.h"
 
 ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context);
-void print_stats(FrameStatistics stats);
 
 int main()
 {
@@ -39,7 +38,6 @@ int main()
         return EXIT_FAILURE;
     }
 
-    print_stats(context.stats);
     return EXIT_SUCCESS;
 }
 
@@ -47,8 +45,6 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
     if (STATUS_SUCCESS != previous) {
         return previous;
     }
-
-    const double loop_start_time_ms = get_time_ms();
 
     Player player;
     init_player(&player, context->w/2., context->h/2.);
@@ -59,22 +55,15 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
     SDL_Event event;
     bool quit = false;
 
-    uint32_t nb_frames = 0;
-    Uint32 frame_start_ms, frame_end_ms;
-    uint32_t frame_measure_start = 100;
-    int nb_measured_frames = 5;
-    double frame_average_ms = 0;
-
     int8_t kb_left = 0;
     int8_t kb_right = 0;
     bool kb_a_button = false;
 
-    while (!quit) {
-        nb_frames += 1;
+    const double FPS = 60.;
+    const double wanted_frame_duration_ms = 1000./FPS;
 
-        if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
-            frame_start_ms = get_time_ms();
-        }
+    while (!quit) {
+        const Uint64 frame_start_time_ms = SDL_GetPerformanceCounter();
 
         while (SDL_PollEvent(&event)) {
             switch (event.type) {
@@ -134,26 +123,15 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
         update_player_view(&player_view, &player);
         draw_player_view(context->renderer, &player_view);
 
-        if (frame_measure_start <= nb_frames && nb_frames < frame_measure_start + nb_measured_frames) {
-            frame_end_ms = get_time_ms();
-            frame_average_ms += (double)(frame_end_ms - frame_start_ms)/nb_measured_frames;
-        }
-
         SDL_RenderPresent(context->renderer);
+
+        const double frame_duration_ms = 1000.*(SDL_GetPerformanceCounter() - frame_start_time_ms)/SDL_GetPerformanceFrequency();
+        if(frame_duration_ms > wanted_frame_duration_ms) {
+            printf("Warning: frame duration = %.3f ms (wanted: %.3f ms)\n", frame_duration_ms, wanted_frame_duration_ms);
+        }
+        if (wanted_frame_duration_ms > frame_duration_ms) {
+            SDL_Delay(wanted_frame_duration_ms - frame_duration_ms);
+        }
     }
-
-    const double total_time_ms = get_time_ms() - loop_start_time_ms;
-
-    context->stats.nb_frames = nb_frames;
-    context->stats.frame_average_ms = frame_average_ms;
-    context->stats.total_time_ms = total_time_ms;
-
     return STATUS_SUCCESS;
-}
-
-void print_stats(FrameStatistics stats) {
-    printf("\nNb frames: %d\n", stats.nb_frames);
-    printf("Total time (ms): %.0f\n", stats.total_time_ms);
-    printf("Average FPS: %.2f\n", 1000.f*stats.nb_frames/stats.total_time_ms);
-    printf("Average frame computing time (ms): %.3f\n", stats.frame_average_ms);
 }
