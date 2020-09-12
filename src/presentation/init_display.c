@@ -8,7 +8,8 @@ ReturnStatus init_window_renderer_and_screen_texture(PresentationContext *contex
         return STATUS_ERROR;
     }
 
-    context->window = SDL_CreateWindow("SDL2",
+    context->window = SDL_CreateWindow(
+            "SDL2",
             SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
             context->w*context->pixel_size, context->h*context->pixel_size, SDL_WINDOW_SHOWN);
     if(NULL == context->window)
@@ -21,8 +22,8 @@ ReturnStatus init_window_renderer_and_screen_texture(PresentationContext *contex
         SDL_SetWindowFullscreen(context->window, SDL_WINDOW_FULLSCREEN);
     }
 
-    context->renderer = SDL_CreateRenderer(context->window, -1,
-            SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    context->renderer = SDL_CreateRenderer(
+            context->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if(NULL == context->renderer)
     {
         fprintf(stderr, "SDL_CreateRenderer error: %s\n", SDL_GetError());

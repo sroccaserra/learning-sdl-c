@@ -15,5 +15,6 @@ int draw_panel(SDL_Renderer *renderer, const Panel *panel) {
     dst_rect.w = panel->x_zoom*panel->tileset_w;
     dst_rect.h = panel->y_zoom*panel->tileset_h;
 
-   return SDL_RenderCopyEx(renderer, panel->tileset, &src_rect, &dst_rect, panel->alpha, &panel->rotation_center, SDL_FLIP_NONE);
+   return SDL_RenderCopyEx(
+           renderer, panel->tileset, &src_rect, &dst_rect, panel->alpha, &panel->rotation_center, SDL_FLIP_NONE);
 }

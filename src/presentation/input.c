@@ -1,6 +1,7 @@
 #include "input.h"
 
-void read_input(Input *input,
+void read_input(
+        Input *input,
         const int8_t kb_left, const int8_t kb_right, const bool kb_a_button, SDL_GameController *controller) {
     int8_t kb_x_direction = kb_left + kb_right;
 
