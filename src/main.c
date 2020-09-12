@@ -127,7 +127,9 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
 
         const double frame_duration_ms = 1000.*(SDL_GetPerformanceCounter() - frame_start_time_ms)/SDL_GetPerformanceFrequency();
         if(frame_duration_ms > wanted_frame_duration_ms) {
-            printf("Warning: frame duration = %.3f ms (wanted: %.3f ms)\n", frame_duration_ms, wanted_frame_duration_ms);
+            SDL_LogWarn(SDL_LOG_CATEGORY_APPLICATION,
+                    "Frame duration = %.3f ms (wanted: %.3f ms)\n",
+                    frame_duration_ms, wanted_frame_duration_ms);
         }
         if (wanted_frame_duration_ms > frame_duration_ms) {
             SDL_Delay(wanted_frame_duration_ms - frame_duration_ms);
