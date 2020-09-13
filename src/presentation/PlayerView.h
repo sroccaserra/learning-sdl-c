@@ -3,11 +3,11 @@
 
 #include "../domain/Player.h"
 
-#include "Panel.h"
+#include "Tile.h"
 
 typedef struct {
     Player *player;
-    Panel panel;
+    Tile tile;
 } PlayerView;
 
 void init_player_view(PlayerView *player_view, const Player *player, SDL_Texture *tileset);

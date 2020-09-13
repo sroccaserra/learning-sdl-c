@@ -8,7 +8,7 @@
 #include "domain/Input.h"
 #include "domain/Player.h"
 
-#include "presentation/Panel.h"
+#include "presentation/Tile.h"
 #include "presentation/PlayerView.h"
 #include "presentation/PresentationContext.h"
 #include "presentation/init_display.h"

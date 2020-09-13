@@ -1,5 +1,5 @@
-#ifndef _PANEL_H_
-#define _PANEL_H_
+#ifndef _TILE_H_
+#define _TILE_H_
 
 #include "SDL.h"
 
@@ -16,8 +16,8 @@ typedef struct {
     double alpha;
     SDL_Point rotation_center;
     SDL_Texture *tileset;
-} Panel;
+} Tile;
 
-int draw_panel(SDL_Renderer *renderer, const Panel *panel);
+int draw_tile(SDL_Renderer *renderer, const Tile *tile);
 
-#endif // _PANEL_H_
+#endif // _TILE_H_
