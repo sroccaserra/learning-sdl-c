@@ -46,11 +46,10 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
         return previous;
     }
 
-    Player player;
-    init_player(&player, context->w/2., context->h/2.);
+    const PlayerPtr player_p = create_player(context->w/2., context->h/2.);
 
     PlayerView player_view;
-    init_player_view(&player_view, &player, context->sprite_tiles);
+    init_player_view(&player_view, player_p, context->sprite_tiles);
 
     SDL_Event event;
     bool quit = false;
@@ -102,25 +101,13 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
         Input input;
         read_input(&input, kb_left, kb_right, kb_a_button, context->controller);
 
-        update_player(&player, &input);
-
-        if (player.x > context->w) {
-            player.x -= context->w;
-        }
-        if (player.x < 0) {
-            player.x += context->w;
-        }
-        if (player.y < 0) {
-            player.y += context->h;
-        }
-        if (player.y > context->h) {
-            player.y -= context->h;
-        }
+        update_player(player_p, &input);
+        player_clamp(player_p, context->w, context->h);
 
         SDL_SetRenderDrawColor(context->renderer, 0x39, 0x39, 0x39, 0x39);
         SDL_RenderClear(context->renderer);
 
-        update_player_view(&player_view, &player);
+        update_player_view(&player_view);
         draw_player_view(context->renderer, &player_view);
 
         SDL_RenderPresent(context->renderer);
@@ -138,5 +125,8 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
             SDL_Delay(wanted_frame_duration_ms - frame_duration_ms);
         }
     }
+
+    delete_player(player_p);
+
     return STATUS_SUCCESS;
 }
