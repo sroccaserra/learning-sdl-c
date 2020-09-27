@@ -9,8 +9,6 @@ typedef struct {
     int tileset_w;
     int tileset_h;
 
-    double x;
-    double y;
     double x_zoom;
     double y_zoom;
     double alpha;
@@ -18,6 +16,6 @@ typedef struct {
     SDL_Texture *tileset;
 } Tile;
 
-int draw_tile(SDL_Renderer *renderer, const Tile *tile);
+int draw_tile(SDL_Renderer *renderer, const Tile *tile, const double x, const double y);
 
 #endif // _TILE_H_

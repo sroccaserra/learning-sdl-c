@@ -106,10 +106,7 @@ ReturnStatus run_game_loop(ReturnStatus previous, PresentationContext *context) 
 
         SDL_SetRenderDrawColor(context->renderer, 0x39, 0x39, 0x39, 0x39);
         SDL_RenderClear(context->renderer);
-
-        update_player_view(&player_view);
         draw_player_view(context->renderer, &player_view);
-
         SDL_RenderPresent(context->renderer);
 
         const double frame_duration_ms =
